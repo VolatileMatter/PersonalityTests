@@ -1,0 +1,1 @@
+these are the basic colors which will be recolored

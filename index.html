@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Personality Hoard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0807;
+      --surface: #13100e;
+      --border: #3a2e22;
+      --gold: #c9a84c;
+      --gold-dim: #7a6030;
+      --ember: #e05c2a;
+      --text: #e8dcc8;
+      --text-dim: #8a7a60;
+      --smoke: rgba(201,168,76,0.06);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Crimson Pro', serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* animated embers */
+    .embers {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .ember {
+      position: absolute;
+      bottom: -10px;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--ember);
+      animation: float-up linear infinite;
+      opacity: 0;
+    }
+    @keyframes float-up {
+      0% { transform: translateY(0) translateX(0); opacity: 0; }
+      10% { opacity: 0.8; }
+      90% { opacity: 0.3; }
+      100% { transform: translateY(-100vh) translateX(var(--drift)); opacity: 0; }
+    }
+
+    .main {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 3rem 2rem;
+      max-width: 640px;
+      width: 100%;
+    }
+
+    .crest {
+      font-size: 4rem;
+      margin-bottom: 0.5rem;
+      filter: drop-shadow(0 0 20px rgba(201,168,76,0.4));
+      animation: breathe 4s ease-in-out infinite;
+    }
+    @keyframes breathe {
+      0%, 100% { filter: drop-shadow(0 0 20px rgba(201,168,76,0.4)); }
+      50% { filter: drop-shadow(0 0 40px rgba(224,92,42,0.6)); }
+    }
+
+    h1 {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(1.4rem, 5vw, 2.2rem);
+      color: var(--gold);
+      letter-spacing: 0.05em;
+      line-height: 1.2;
+      margin-bottom: 0.6rem;
+      text-shadow: 0 0 40px rgba(201,168,76,0.3);
+    }
+
+    .subtitle {
+      color: var(--text-dim);
+      font-style: italic;
+      font-size: 1.05rem;
+      margin-bottom: 3rem;
+      font-weight: 300;
+    }
+
+    .quiz-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .quiz-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      text-decoration: none;
+      color: var(--text);
+      transition: border-color 0.2s, background 0.2s, transform 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .quiz-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--smoke), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .quiz-card:hover {
+      border-color: var(--gold-dim);
+      background: #1a1410;
+      transform: translateY(-2px);
+    }
+    .quiz-card:hover::before { opacity: 1; }
+
+    .card-icon { font-size: 2.2rem; flex-shrink: 0; }
+    .card-body { flex: 1; text-align: left; }
+    .card-title {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 0.95rem;
+      color: var(--gold);
+      margin-bottom: 0.25rem;
+    }
+    .card-desc {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      font-style: italic;
+      font-weight: 300;
+    }
+    .card-arrow {
+      color: var(--gold-dim);
+      font-size: 1.4rem;
+      transition: color 0.2s, transform 0.2s;
+    }
+    .quiz-card:hover .card-arrow {
+      color: var(--gold);
+      transform: translateX(4px);
+    }
+
+    .past-result-badge {
+      display: inline-block;
+      background: var(--gold-dim);
+      color: var(--bg);
+      font-size: 0.65rem;
+      font-family: 'Cinzel Decorative', serif;
+      padding: 2px 6px;
+      border-radius: 2px;
+      margin-left: 0.5rem;
+      vertical-align: middle;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2rem 0;
+    }
+
+    .section-label {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 0.7rem;
+      color: var(--gold-dim);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="embers" id="embers"></div>
+
+  <main class="main">
+    <div class="crest">🐉</div>
+    <h1>The Personality Hoard</h1>
+    <p class="subtitle">Discover what manner of creature you truly are.</p>
+
+    <div class="section-label">Quizzes</div>
+    <div class="quiz-grid" id="quiz-grid">
+      <!-- populated by JS -->
+    </div>
+  </main>
+
+  <script>
+    // ── Ember particles ──────────────────────────────────────────
+    const embers = document.getElementById('embers');
+    for (let i = 0; i < 22; i++) {
+      const e = document.createElement('div');
+      e.className = 'ember';
+      e.style.cssText = `
+        left: ${Math.random() * 100}%;
+        --drift: ${(Math.random() - 0.5) * 80}px;
+        animation-duration: ${4 + Math.random() * 6}s;
+        animation-delay: ${Math.random() * 8}s;
+        width: ${1 + Math.random() * 3}px;
+        height: ${1 + Math.random() * 3}px;
+        background: ${Math.random() > 0.5 ? '#e05c2a' : '#c9a84c'};
+      `;
+      embers.appendChild(e);
+    }
+
+    // ── Quiz registry ─────────────────────────────────────────────
+    const quizzes = [
+      {
+        id: 'dragon_person_01',
+        title: 'What Dragon Are You?',
+        desc: 'Let your scales be revealed.',
+        icon: '🐉',
+        folder: 'dragon_person_01'
+      }
+      // Add more quizzes here later
+    ];
+
+    const grid = document.getElementById('quiz-grid');
+
+    quizzes.forEach(q => {
+      const hasPast = document.cookie.includes(`quiz_${q.id}_done=true`);
+
+      const card = document.createElement('a');
+      card.href = `${q.folder}/index.html`;
+      card.className = 'quiz-card';
+      card.innerHTML = `
+        <span class="card-icon">${q.icon}</span>
+        <div class="card-body">
+          <div class="card-title">${q.title}${hasPast ? '<span class="past-result-badge">Completed</span>' : ''}</div>
+          <div class="card-desc">${q.desc}</div>
+        </div>
+        <span class="card-arrow">›</span>
+      `;
+      grid.appendChild(card);
+
+      if (hasPast) {
+        const viewCard = document.createElement('a');
+        viewCard.href = `${q.folder}/result.html`;
+        viewCard.className = 'quiz-card';
+        viewCard.style.borderColor = 'var(--gold-dim)';
+        viewCard.innerHTML = `
+          <span class="card-icon">📜</span>
+          <div class="card-body">
+            <div class="card-title">View Past Result</div>
+            <div class="card-desc">Return to your ${q.title.toLowerCase()} result.</div>
+          </div>
+          <span class="card-arrow">›</span>
+        `;
+        grid.appendChild(viewCard);
+      }
+    });
+  </script>
+</body>
+</html>

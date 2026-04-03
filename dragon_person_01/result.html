@@ -4,117 +4,87 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Your Dragon</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../shared.css">
   <style>
-    :root {
-      --bg: #0a0807;
-      --surface: #13100e;
-      --border: #3a2e22;
-      --gold: #c9a84c;
-      --gold-dim: #7a6030;
-      --text: #e8dcc8;
-      --text-dim: #8a7a60;
+    .page-center {
+      display: flex; flex-direction: column;
+      align-items: center; text-align: center;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg); color: var(--text);
-      font-family: 'Crimson Pro', serif;
-      min-height: 100vh; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; padding: 2rem 1rem;
-    }
-    .container { max-width: 520px; width: 100%; text-align: center; }
-    .back-link {
-      display: inline-flex; align-items: center; gap: 0.4rem;
-      color: var(--gold-dim); text-decoration: none;
-      font-size: 0.85rem; font-family: 'Cinzel Decorative', serif;
-      margin-bottom: 2rem; transition: color 0.2s;
-    }
-    .back-link:hover { color: var(--gold); }
 
-    /* ── Dragon display ── */
+    /* ── Dragon glow frame ───────────────────── */
     .dragon-frame {
-      position: relative; display: inline-block;
+      position: relative;
+      display: inline-block;
       margin-bottom: 2rem;
     }
     .dragon-frame::before {
       content: '';
-      position: absolute; inset: -24px; border-radius: 50%;
-      background: radial-gradient(ellipse at center, var(--glow-color, rgba(201,168,76,0.15)), transparent 70%);
+      position: absolute; inset: -28px; border-radius: 50%;
+      background: radial-gradient(ellipse, var(--glow, rgba(201,168,76,0.15)), transparent 68%);
       pointer-events: none;
-      animation: pulse 3s ease-in-out infinite;
-    }
-    @keyframes pulse {
-      0%,100% { opacity: 0.6; transform: scale(1); }
-      50%      { opacity: 1;   transform: scale(1.06); }
+      animation: pulse-glow 3.5s ease-in-out infinite;
     }
 
     #output-canvas {
-      max-width: 340px; width: 100%; height: auto;
+      max-width: 360px; width: 100%; height: auto;
       display: none;
       animation: float 5s ease-in-out infinite;
     }
-    @keyframes float {
-      0%,100% { transform: translateY(0); }
-      50%      { transform: translateY(-10px); }
-    }
 
     .loading-msg {
-      width: 200px; height: 200px;
+      width: 220px; height: 220px;
       display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 0.75rem;
-      color: var(--text-dim); font-style: italic; font-size: 0.9rem;
+      align-items: center; justify-content: center; gap: 0.8rem;
+      color: var(--text-dim); font-style: italic; font-size: 0.88rem;
     }
-    .spinner {
-      width: 32px; height: 32px; border-radius: 50%;
-      border: 2px solid var(--border);
-      border-top-color: var(--gold-dim);
-      animation: spin 0.9s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
 
     .error-msg {
-      width: 240px; padding: 1rem;
-      color: var(--text-dim); font-style: italic; font-size: 0.85rem;
+      width: 260px; padding: 1.25rem;
       border: 1px solid var(--border); border-radius: 4px;
-      display: none; line-height: 1.5;
+      color: var(--text-dim); font-style: italic; font-size: 0.85rem;
+      display: none; line-height: 1.6;
     }
 
-    /* ── Name / info ── */
+    /* ── Dragon name / subtitle ──────────────── */
     .dragon-name {
       font-family: 'Cinzel Decorative', serif;
       font-size: clamp(1.5rem, 5vw, 2.2rem);
-      color: var(--gold); margin-bottom: 0.4rem;
-      text-shadow: 0 0 30px rgba(201,168,76,0.3);
+      color: var(--gold);
+      text-shadow: 0 0 30px rgba(201,168,76,0.25);
+      margin-bottom: 0.35rem;
     }
     .dragon-subtitle {
       font-style: italic; font-weight: 300;
-      color: var(--text-dim); font-size: 1.05rem; margin-bottom: 2rem;
+      color: var(--text-dim); font-size: 1rem;
+      margin-bottom: 2rem;
     }
 
-    /* ── Buttons ── */
-    .btn-row { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
-    .btn {
-      border-radius: 3px; cursor: pointer;
-      font-family: 'Cinzel Decorative', serif; font-size: 0.78rem;
-      padding: 0.7rem 1.8rem; letter-spacing: 0.08em;
-      text-decoration: none; display: inline-block;
-      transition: background 0.2s, border-color 0.2s, color 0.2s;
-      background: transparent;
+    /* ── Stat pills ──────────────────────────── */
+    .stat-row {
+      display: flex; flex-wrap: wrap; justify-content: center;
+      gap: 0.45rem; margin-bottom: 2rem;
     }
-    .btn-primary { border: 1px solid var(--gold-dim); color: var(--gold); }
-    .btn-primary:hover { background: rgba(201,168,76,0.1); border-color: var(--gold); }
-    .btn-ghost   { border: 1px solid var(--border); color: var(--text-dim); }
-    .btn-ghost:hover { border-color: var(--gold-dim); color: var(--text); }
-    .btn-download {
-      border: 1px solid #2a9d8f; color: #2a9d8f;
-      display: none; /* shown once canvas is ready */
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 0.25rem 0.7rem;
+      font-size: 0.68rem;
+      font-family: 'Cinzel Decorative', serif;
+      color: var(--text-dim);
+      letter-spacing: 0.07em;
     }
-    .btn-download:hover { background: rgba(42,157,143,0.1); border-color: #3dbdb0; }
+    .stat span { color: var(--gold-dim); font-family: 'Crimson Pro', serif; font-style: italic; font-size: 0.8rem; letter-spacing: 0; }
+
+    /* ── Button row ──────────────────────────── */
+    .btn-row {
+      display: flex; gap: 0.75rem;
+      justify-content: center; flex-wrap: wrap;
+    }
   </style>
 </head>
 <body>
-<div class="container">
+<div class="container--sm page-center">
   <a href="../index.html" class="back-link">← The Hoard</a>
 
   <div class="dragon-frame" id="dragon-frame">
@@ -126,165 +96,488 @@
     <canvas id="output-canvas"></canvas>
   </div>
 
-  <div class="dragon-name"    id="dragon-name"></div>
+  <div class="dragon-name"     id="dragon-name"></div>
   <div class="dragon-subtitle" id="dragon-subtitle"></div>
+  <div class="stat-row"        id="stat-row"></div>
 
   <div class="btn-row">
-    <button class="btn btn-download" id="download-btn">⬇ Download PNG</button>
-    <a href="index.html" class="btn btn-ghost" id="retake-btn">Retake Quiz</a>
-    <a href="../index.html" class="btn btn-primary">Back to Hoard</a>
+    <button class="btn btn--teal"  id="download-btn" style="display:none">⬇ Download PNG</button>
+    <a href="index.html"           class="btn btn--ghost" id="retake-btn">Retake Quiz</a>
+    <a href="../index.html"        class="btn btn--gold">← The Hoard</a>
   </div>
 </div>
 
 <script>
-  // ── Dragon metadata ──────────────────────────────────────────
-  const DRAGON_INFO = {
-    b:         { name: 'Dragon B',    subtitle: 'Of the Unknown Lineage' },
-    base:      { name: 'The Base',    subtitle: 'Origin of All Dragons'  },
-    beta:      { name: 'Beta',        subtitle: 'First of the Tested'    },
-    betab:     { name: 'Beta B',      subtitle: 'The Second Trial'       },
-    c:         { name: 'Dragon C',    subtitle: 'The Third Form'         },
-    hivewing:  { name: 'HiveWing',    subtitle: 'Weaver of the Colony'   },
-    icewing:   { name: 'IceWing',     subtitle: 'Born of Eternal Winter' },
-    leafwing:  { name: 'LeafWing',    subtitle: 'Guardian of the Grove'  },
-    mudwing:   { name: 'MudWing',     subtitle: 'Strength of the Delta'  },
-    nightwing: { name: 'NightWing',   subtitle: 'Reader of Futures'      },
-    rainwing:  { name: 'RainWing',    subtitle: 'Living Prism'           },
-    sandwing:  { name: 'SandWing',    subtitle: 'Sovereign of the Dunes' },
-    seawing:   { name: 'SeaWing',     subtitle: 'Voice of the Deep'      },
-    seawingb:  { name: 'SeaWing B',   subtitle: 'Tide Caller'            },
-    silkwing:  { name: 'SilkWing',    subtitle: 'Dreamer on the Wind'    },
-    skywing:   { name: 'SkyWing',     subtitle: 'Sovereign of the Flame' },
+// ══════════════════════════════════════════════════════════════
+//  METADATA
+// ══════════════════════════════════════════════════════════════
+const DRAGON_INFO = {
+  b:         { name: 'Dragon B',    subtitle: 'Of the Unknown Lineage'     },
+  base:      { name: 'The Base',    subtitle: 'Origin of All Dragons'      },
+  beta:      { name: 'Beta',        subtitle: 'First of the Tested'        },
+  betab:     { name: 'Beta B',      subtitle: 'The Second Trial'           },
+  c:         { name: 'Dragon C',    subtitle: 'The Third Form'             },
+  hivewing:  { name: 'HiveWing',    subtitle: 'Weaver of the Colony'       },
+  icewing:   { name: 'IceWing',     subtitle: 'Born of Eternal Winter'     },
+  leafwing:  { name: 'LeafWing',    subtitle: 'Guardian of the Grove'      },
+  mudwing:   { name: 'MudWing',     subtitle: 'Strength of the Delta'      },
+  nightwing: { name: 'NightWing',   subtitle: 'Reader of Futures'          },
+  rainwing:  { name: 'RainWing',    subtitle: 'Living Prism'               },
+  sandwing:  { name: 'SandWing',    subtitle: 'Sovereign of the Dunes'     },
+  seawing:   { name: 'SeaWing',     subtitle: 'Voice of the Deep'          },
+  seawingb:  { name: 'SeaWing B',   subtitle: 'Tide Caller'                },
+  silkwing:  { name: 'SilkWing',    subtitle: 'Dreamer on the Wind'        },
+  skywing:   { name: 'SkyWing',     subtitle: 'Sovereign of the Flame'     },
+};
+
+const COLOR_GLOW = {
+  crimson:  'rgba(204,34,0,0.2)',
+  gold:     'rgba(201,168,76,0.2)',
+  cobalt:   'rgba(26,79,160,0.2)',
+  emerald:  'rgba(26,122,69,0.2)',
+  amethyst: 'rgba(107,63,160,0.2)',
+  obsidian: 'rgba(80,60,100,0.18)',
+  ivory:    'rgba(232,220,200,0.15)',
+  copper:   'rgba(184,115,51,0.2)',
+  rose:     'rgba(192,80,128,0.2)',
+  teal:     'rgba(42,157,143,0.2)',
+  silver:   'rgba(154,176,192,0.2)',
+  ochre:    'rgba(200,134,10,0.2)',
+};
+
+const ACTIVITY_LABELS = {
+  running:'Running', climbing:'Climbing', basking:'Basking',
+  dancing:'Dancing', singing:'Singing',  surfing:'Surfing/Skating', sleeping:'Sleeping',
+};
+const TITLE_LABELS = {
+  king:'King/Queen', fighter:'Fighter', chief:'Chief', lover:'Lover',
+  explorer:'Explorer', builder:'Builder', caretaker:'Caretaker', collector:'Collector',
+};
+
+// ══════════════════════════════════════════════════════════════
+//  COOKIES
+// ══════════════════════════════════════════════════════════════
+function getCookie(name) {
+  const v = document.cookie.split(';').map(c => c.trim()).find(c => c.startsWith(name + '='));
+  return v ? decodeURIComponent(v.split('=')[1]) : null;
+}
+function deleteCookie(name) {
+  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/`;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  SEEDED PRNG — mulberry32
+//  Same seed → identical sequence every time
+// ══════════════════════════════════════════════════════════════
+function mulberry32(seed) {
+  return function() {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
   };
+}
 
-  const COLOR_GLOW = {
-    crimson:  'rgba(204,34,0,0.22)',
-    gold:     'rgba(201,168,76,0.22)',
-    cobalt:   'rgba(26,79,160,0.22)',
-    emerald:  'rgba(26,122,69,0.22)',
-    amethyst: 'rgba(107,63,160,0.22)',
-    obsidian: 'rgba(80,60,100,0.18)',
-    ivory:    'rgba(232,220,200,0.18)',
-    copper:   'rgba(184,115,51,0.22)',
-    rose:     'rgba(192,80,128,0.22)',
-    teal:     'rgba(42,157,143,0.22)',
-    silver:   'rgba(154,176,192,0.22)',
-    ochre:    'rgba(200,134,10,0.22)',
-  };
-
-  // ── Cookie helpers ──────────────────────────────────────────
-  function getCookie(name) {
-    const v = document.cookie.split(';').map(c => c.trim()).find(c => c.startsWith(name + '='));
-    return v ? decodeURIComponent(v.split('=')[1]) : null;
+// Build a deterministic seed from the 4 answers
+function buildSeed(dragon, color, patternType, seedMod) {
+  // Hash each string to a number, combine with seedMod
+  function strHash(s) {
+    let h = 0;
+    for (let i = 0; i < s.length; i++) h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+    return h >>> 0;
   }
-  function deleteCookie(name) {
-    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/`;
-  }
+  return (strHash(dragon) ^ strHash(color) ^ strHash(patternType) ^ (seedMod * 0x9e3779b9)) >>> 0;
+}
 
-  // ── Image loader ────────────────────────────────────────────
-  function loadImage(src) {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload  = () => resolve(img);
-      img.onerror = () => reject(new Error(`Failed to load: ${src}`));
-      img.src = src;
-    });
-  }
+// ══════════════════════════════════════════════════════════════
+//  COLOR HELPERS
+// ══════════════════════════════════════════════════════════════
+function hexToRgb(hex) {
+  return [
+    parseInt(hex.slice(1,3), 16),
+    parseInt(hex.slice(3,5), 16),
+    parseInt(hex.slice(5,7), 16),
+  ];
+}
 
-  // ── Flat recolor (all pixels alpha > 50 → target hex, preserve alpha) ──
-  function flatRecolor(imageData, hex) {
-    const tr = parseInt(hex.slice(1,3), 16);
-    const tg = parseInt(hex.slice(3,5), 16);
-    const tb = parseInt(hex.slice(5,7), 16);
-    const d = imageData.data;
-    for (let i = 0; i < d.length; i += 4) {
-      if (d[i+3] <= 50) continue;
-      d[i]   = tr;
-      d[i+1] = tg;
-      d[i+2] = tb;
-      // alpha untouched
+function rgbToHsv(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r,g,b), min = Math.min(r,g,b), d = max - min;
+  let h = 0, s = max === 0 ? 0 : d / max, v = max;
+  if (d !== 0) {
+    switch (max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+      case g: h = ((b - r) / d + 2) / 6; break;
+      case b: h = ((r - g) / d + 4) / 6; break;
     }
-    return imageData;
   }
+  return [h, s, v];
+}
 
-  // ── Main ────────────────────────────────────────────────────
-  const raw = getCookie('quiz_dragon_person_01_answers');
-  if (!raw) { window.location.href = 'index.html'; }
+function hsvToHex(h, s, v) {
+  const i = Math.floor(h * 6), f = h * 6 - i;
+  const p = v*(1-s), q = v*(1-f*s), t = v*(1-(1-f)*s);
+  let r, g, b;
+  switch (i % 6) {
+    case 0: r=v;g=t;b=p; break; case 1: r=q;g=v;b=p; break;
+    case 2: r=p;g=v;b=t; break; case 3: r=p;g=q;b=v; break;
+    case 4: r=t;g=p;b=v; break; case 5: r=v;g=p;b=q; break;
+  }
+  return '#' + [r,g,b].map(x => Math.round(x*255).toString(16).padStart(2,'0')).join('');
+}
 
-  const answers   = JSON.parse(raw);
-  const dragonKey = answers.dragon;
-  const colorHex  = answers.colorHex;
-  const colorKey  = answers.color;
-  const dragonInfo = DRAGON_INFO[dragonKey] || { name: dragonKey, subtitle: 'Of Ancient Lineage' };
+// Darken a hex color: keep H+S, crush V to ~18%
+function darkenHex(hex, targetV = 0.18) {
+  const [r, g, b] = hexToRgb(hex);
+  const [h, s] = rgbToHsv(r, g, b);
+  return hsvToHex(h, Math.min(s * 1.1, 1), targetV);
+}
 
-  // Set name / subtitle
-  document.getElementById('dragon-name').textContent     = dragonInfo.name;
-  document.getElementById('dragon-subtitle').textContent = dragonInfo.subtitle;
+// ══════════════════════════════════════════════════════════════
+//  FLAT RECOLOR  (clipping layer → chosen color)
+// ══════════════════════════════════════════════════════════════
+function flatRecolor(imageData, hex) {
+  const [tr, tg, tb] = hexToRgb(hex);
+  const d = imageData.data;
+  for (let i = 0; i < d.length; i += 4) {
+    if (d[i+3] <= 50) continue;
+    d[i] = tr; d[i+1] = tg; d[i+2] = tb;
+  }
+  return imageData;
+}
 
-  // Set glow color
-  document.getElementById('dragon-frame').style.setProperty(
-    '--glow-color', COLOR_GLOW[colorKey] || 'rgba(201,168,76,0.2)'
-  );
+// ══════════════════════════════════════════════════════════════
+//  RECOLOR LINEART  (lines layer → darkened color)
+// ══════════════════════════════════════════════════════════════
+function recolorLineart(imageData, hex) {
+  const [tr, tg, tb] = hexToRgb(hex);
+  const d = imageData.data;
+  for (let i = 0; i < d.length; i += 4) {
+    if (d[i+3] <= 50) continue;
+    d[i] = tr; d[i+1] = tg; d[i+2] = tb;
+  }
+  return imageData;
+}
 
-  // Image paths
-  const clippingPath = `base/clipping/${dragonKey}.png`;
-  const linesPath    = `base/lines/${dragonKey}.png`;
+// ══════════════════════════════════════════════════════════════
+//  PATTERN GENERATORS
+//  Each takes (ctx, w, h, rng, seedMod) and draws in black.
+//  They draw freely — masking is handled afterward by the
+//  clipping layer used as destination-in composite.
+// ══════════════════════════════════════════════════════════════
 
-  const canvas = document.getElementById('output-canvas');
-  const ctx    = canvas.getContext('2d');
+function patternStripes(ctx, w, h, rng, seedMod) {
+  // Diagonal stripes of varying widths
+  const count = 6 + Math.floor(rng() * 8) + seedMod;
+  const angle = (rng() * 40 - 20) * Math.PI / 180; // slight angle variation
+  const stripeW = w / (count * 2);
 
-  function showError(msg) {
+  ctx.save();
+  ctx.translate(w/2, h/2);
+  ctx.rotate(angle);
+  ctx.translate(-w, -h);
+
+  ctx.fillStyle = 'rgba(0,0,0,0.55)';
+  for (let i = 0; i < count * 4; i += 2) {
+    const x = (i * stripeW) - w/2;
+    const varW = stripeW * (0.5 + rng() * 0.8);
+    ctx.fillRect(x, -h, varW, h * 3);
+  }
+  ctx.restore();
+}
+
+function patternDots(ctx, w, h, rng, seedMod) {
+  // Scattered dots of varying sizes
+  const baseCount = 30 + seedMod * 8;
+  ctx.fillStyle = 'rgba(0,0,0,0.6)';
+  for (let i = 0; i < baseCount; i++) {
+    const x = rng() * w;
+    const y = rng() * h;
+    const r = 4 + rng() * (8 + seedMod * 2);
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function patternBlobs(ctx, w, h, rng, seedMod) {
+  // Large soft blobs using bezier curves
+  const count = 3 + Math.floor(rng() * 3) + Math.floor(seedMod / 2);
+  ctx.fillStyle = 'rgba(0,0,0,0.45)';
+  for (let i = 0; i < count; i++) {
+    const cx = w * (0.15 + rng() * 0.7);
+    const cy = h * (0.15 + rng() * 0.7);
+    const rx = w * (0.12 + rng() * 0.22);
+    const ry = h * (0.10 + rng() * 0.20);
+    // Draw a wobbly ellipse using bezier
+    ctx.beginPath();
+    const pts = 8;
+    for (let j = 0; j < pts; j++) {
+      const a = (j / pts) * Math.PI * 2;
+      const wobble = 0.75 + rng() * 0.5;
+      const px = cx + Math.cos(a) * rx * wobble;
+      const py = cy + Math.sin(a) * ry * wobble;
+      j === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fill();
+  }
+}
+
+function patternSharp(ctx, w, h, rng, seedMod) {
+  // Dynamic sharp polygons / shards
+  const count = 5 + seedMod * 2;
+  ctx.fillStyle = 'rgba(0,0,0,0.5)';
+  for (let i = 0; i < count; i++) {
+    const cx = rng() * w;
+    const cy = rng() * h;
+    const sides = 3 + Math.floor(rng() * 3); // triangles, quads, pentagons
+    const size  = 20 + rng() * (40 + seedMod * 8);
+    const rot   = rng() * Math.PI * 2;
+    ctx.beginPath();
+    for (let j = 0; j < sides; j++) {
+      const a = rot + (j / sides) * Math.PI * 2;
+      const r = size * (0.6 + rng() * 0.8); // irregular radius per vertex
+      const px = cx + Math.cos(a) * r;
+      const py = cy + Math.sin(a) * r;
+      j === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fill();
+  }
+}
+
+function patternTwisting(ctx, w, h, rng, seedMod) {
+  // Twisting ribbon-like shapes using quadratic curves
+  const count = 3 + Math.floor(seedMod / 2);
+  ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+  for (let i = 0; i < count; i++) {
+    const lineW = 8 + rng() * (12 + seedMod * 3);
+    ctx.lineWidth = lineW;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    const startX = rng() * w;
+    const startY = rng() * h * 0.3;
+    ctx.moveTo(startX, startY);
+    // Series of curves that twist across the image
+    const segments = 4 + Math.floor(rng() * 3);
+    for (let j = 0; j < segments; j++) {
+      const cpx = rng() * w;
+      const cpy = (j / segments) * h + rng() * h * 0.2;
+      const epx = rng() * w;
+      const epy = ((j + 1) / segments) * h;
+      ctx.quadraticCurveTo(cpx, cpy, epx, epy);
+    }
+    ctx.stroke();
+  }
+}
+
+function patternWaves(ctx, w, h, rng, seedMod) {
+  // Horizontal sine waves of varying frequency/amplitude
+  const count = 3 + Math.floor(seedMod / 2);
+  ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+  for (let i = 0; i < count; i++) {
+    const yBase = (i / count) * h + rng() * (h / count);
+    const amp   = 15 + rng() * (25 + seedMod * 4);
+    const freq  = (2 + rng() * 3) * Math.PI * 2 / w;
+    const phase = rng() * Math.PI * 2;
+    const lw    = 6 + rng() * 10;
+    ctx.lineWidth = lw;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(0, yBase + Math.sin(phase) * amp);
+    for (let x = 1; x <= w; x += 2) {
+      ctx.lineTo(x, yBase + Math.sin(x * freq + phase) * amp);
+    }
+    ctx.stroke();
+  }
+}
+
+function patternSoftBlur(ctx, w, h, rng, seedMod) {
+  // Soft radial gradients creating blur-blob effect
+  const count = 4 + Math.floor(seedMod / 2);
+  for (let i = 0; i < count; i++) {
+    const cx = rng() * w;
+    const cy = rng() * h;
+    const r  = 40 + rng() * (60 + seedMod * 12);
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    grad.addColorStop(0,   'rgba(0,0,0,0.45)');
+    grad.addColorStop(0.5, 'rgba(0,0,0,0.2)');
+    grad.addColorStop(1,   'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+const PATTERN_FNS = {
+  stripes:  patternStripes,
+  dots:     patternDots,
+  blobs:    patternBlobs,
+  sharp:    patternSharp,
+  twisting: patternTwisting,
+  waves:    patternWaves,
+  softblur: patternSoftBlur,
+};
+
+// ══════════════════════════════════════════════════════════════
+//  IMAGE LOADER
+// ══════════════════════════════════════════════════════════════
+function loadImage(src) {
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload  = () => res(img);
+    img.onerror = () => rej(new Error('Could not load: ' + src));
+    img.src = src;
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+//  COMPOSITING PIPELINE
+//
+//  Offscreen canvas A (clipping size):
+//    1. Draw clipping.png → flat recolor to chosen color
+//    2. Draw pattern on top (black, using destination-in to mask)
+//    3. Result: colored dragon shape with black pattern markings
+//
+//  Main canvas:
+//    1. Draw composited result from A
+//    2. Draw lines.png recolored to dark version of chosen color,
+//       at 75% opacity on top
+// ══════════════════════════════════════════════════════════════
+
+function showError(msg) {
+  document.getElementById('loading-msg').style.display = 'none';
+  const el = document.getElementById('error-msg');
+  el.style.display = 'block';
+  el.innerHTML = '🐉<br>' + msg;
+}
+
+// ── Read cookie ───────────────────────────────────────────────
+const raw = getCookie('quiz_dragon_person_01_answers');
+if (!raw) { window.location.href = 'index.html'; }
+
+const answers    = JSON.parse(raw);
+const dragonKey  = answers.dragon;
+const colorHex   = answers.colorHex;
+const colorKey   = answers.color;
+const patternType = answers.patternType || 'blobs';
+const seedMod    = typeof answers.seedMod === 'number' ? answers.seedMod : 0;
+const info       = DRAGON_INFO[dragonKey] || { name: dragonKey, subtitle: 'Of Ancient Lineage' };
+
+// ── Populate UI text ──────────────────────────────────────────
+document.getElementById('dragon-name').textContent     = info.name;
+document.getElementById('dragon-subtitle').textContent = info.subtitle;
+document.getElementById('dragon-frame').style.setProperty(
+  '--glow', COLOR_GLOW[colorKey] || 'rgba(201,168,76,0.18)'
+);
+
+const statRow = document.getElementById('stat-row');
+[
+  ['Color',   (colorKey.charAt(0).toUpperCase() + colorKey.slice(1))],
+  ['Nature',  answers.activity   ? (answers.activity.charAt(0).toUpperCase() + answers.activity.slice(1)) : '—'],
+  ['Pattern', patternType],
+  ['Title',   answers.title      ? (answers.title.charAt(0).toUpperCase() + answers.title.slice(1)) : '—'],
+].forEach(([k, v]) => {
+  const s = document.createElement('div');
+  s.className = 'stat';
+  s.innerHTML = `${k}: <span>${v}</span>`;
+  statRow.appendChild(s);
+});
+
+// ── Compute dark lineart color ────────────────────────────────
+const darkLineHex = darkenHex(colorHex, 0.18);
+
+// ── Load images & composite ───────────────────────────────────
+const clippingPath = `base/clipping/${dragonKey}.png`;
+const linesPath    = `base/lines/${dragonKey}.png`;
+
+const canvas = document.getElementById('output-canvas');
+const ctx    = canvas.getContext('2d');
+
+Promise.all([loadImage(clippingPath), loadImage(linesPath)])
+  .then(([clippingImg, linesImg]) => {
+    const W = Math.max(clippingImg.naturalWidth,  linesImg.naturalWidth);
+    const H = Math.max(clippingImg.naturalHeight, linesImg.naturalHeight);
+    canvas.width  = W;
+    canvas.height = H;
+
+    // ── OFFSCREEN A: base color + pattern, masked to clipping shape ──
+    const offA   = document.createElement('canvas');
+    offA.width   = W; offA.height = H;
+    const ctxA   = offA.getContext('2d');
+
+    // 1. Draw clipping → flat recolor to chosen color
+    ctxA.drawImage(clippingImg, 0, 0);
+    const clipData = ctxA.getImageData(0, 0, W, H);
+    flatRecolor(clipData, colorHex);
+    ctxA.putImageData(clipData, 0, 0);
+
+    // 2. Draw pattern on top (destination-atop keeps pattern ONLY where clipping has pixels)
+    //    We use a second offscreen for the pattern so we can composite cleanly.
+    const offPat   = document.createElement('canvas');
+    offPat.width   = W; offPat.height = H;
+    const ctxPat   = offPat.getContext('2d');
+
+    const seed = buildSeed(dragonKey, colorKey, patternType, seedMod);
+    const rng  = mulberry32(seed);
+    const patternFn = PATTERN_FNS[patternType] || patternBlobs;
+    patternFn(ctxPat, W, H, rng, seedMod);
+
+    // Mask pattern to dragon shape: draw clipping as destination-in mask
+    ctxPat.globalCompositeOperation = 'destination-in';
+    ctxPat.drawImage(clippingImg, 0, 0);
+    ctxPat.globalCompositeOperation = 'source-over';
+
+    // Composite pattern over colored base
+    ctxA.drawImage(offPat, 0, 0);
+
+    // ── OFFSCREEN B: lineart recolored to dark shade ──────────────
+    const offB   = document.createElement('canvas');
+    offB.width   = W; offB.height = H;
+    const ctxB   = offB.getContext('2d');
+    ctxB.drawImage(linesImg, 0, 0);
+    const lineData = ctxB.getImageData(0, 0, W, H);
+    recolorLineart(lineData, darkLineHex);
+    ctxB.putImageData(lineData, 0, 0);
+
+    // ── FINAL COMPOSITE ───────────────────────────────────────────
+    // Layer 1: colored base + pattern
+    ctx.clearRect(0, 0, W, H);
+    ctx.drawImage(offA, 0, 0);
+
+    // Layer 2: dark lineart at 75% opacity
+    ctx.globalAlpha = 0.75;
+    ctx.drawImage(offB, 0, 0);
+    ctx.globalAlpha = 1.0;
+
+    // ── Show result ───────────────────────────────────────────────
     document.getElementById('loading-msg').style.display = 'none';
-    const el = document.getElementById('error-msg');
-    el.style.display = 'block';
-    el.innerHTML = `🐉<br>${msg}`;
-  }
-
-  Promise.all([loadImage(clippingPath), loadImage(linesPath)])
-    .then(([clippingImg, linesImg]) => {
-      // Use the larger of the two as canvas size (should be same)
-      canvas.width  = Math.max(clippingImg.naturalWidth,  linesImg.naturalWidth);
-      canvas.height = Math.max(clippingImg.naturalHeight, linesImg.naturalHeight);
-
-      // ── Layer 1: clipping — flat recolored ─────────────────
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(clippingImg, 0, 0);
-
-      const clippingData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      flatRecolor(clippingData, colorHex);
-      ctx.putImageData(clippingData, 0, 0);
-
-      // ── Layer 2: lineart at 75% opacity on top ─────────────
-      ctx.globalAlpha = 0.75;
-      ctx.drawImage(linesImg, 0, 0);
-      ctx.globalAlpha = 1.0;
-
-      // Show canvas, hide spinner
-      document.getElementById('loading-msg').style.display = 'none';
-      canvas.style.display = 'block';
-      document.getElementById('download-btn').style.display = 'inline-block';
-    })
-    .catch(err => {
-      console.error(err);
-      showError(`Couldn't load dragon files.<br><small>${err.message}</small>`);
-    });
-
-  // ── Download ────────────────────────────────────────────────
-  document.getElementById('download-btn').addEventListener('click', () => {
-    const link = document.createElement('a');
-    link.download = `${dragonKey}_${colorKey}_dragon.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+    canvas.style.display = 'block';
+    document.getElementById('download-btn').style.display = 'inline-block';
+  })
+  .catch(err => {
+    console.error(err);
+    showError(`Couldn't load dragon files.<br><small style="opacity:0.6">${err.message}</small>`);
   });
 
-  // ── Retake ──────────────────────────────────────────────────
-  document.getElementById('retake-btn').addEventListener('click', e => {
-    e.preventDefault();
-    deleteCookie('quiz_dragon_person_01_answers');
-    deleteCookie('quiz_dragon_person_01_done');
-    window.location.href = 'index.html';
-  });
+// ── Download ──────────────────────────────────────────────────
+document.getElementById('download-btn').addEventListener('click', () => {
+  const link     = document.createElement('a');
+  link.download  = `${dragonKey}_${colorKey}_${patternType}.png`;
+  link.href      = canvas.toDataURL('image/png');
+  link.click();
+});
+
+// ── Retake ────────────────────────────────────────────────────
+document.getElementById('retake-btn').addEventListener('click', e => {
+  e.preventDefault();
+  deleteCookie('quiz_dragon_person_01_answers');
+  deleteCookie('quiz_dragon_person_01_done');
+  window.location.href = 'index.html';
+});
 </script>
 </body>
 </html>

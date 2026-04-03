@@ -4,129 +4,115 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>What Dragon Are You?</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../shared.css">
   <style>
-    :root {
-      --bg: #0a0807;
-      --surface: #13100e;
-      --border: #3a2e22;
-      --gold: #c9a84c;
-      --gold-dim: #7a6030;
-      --ember: #e05c2a;
-      --text: #e8dcc8;
-      --text-dim: #8a7a60;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Crimson Pro', serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem 1rem;
-    }
-    .container { max-width: 660px; width: 100%; }
-    .back-link {
-      display: inline-flex; align-items: center; gap: 0.4rem;
-      color: var(--gold-dim); text-decoration: none;
-      font-size: 0.85rem; font-family: 'Cinzel Decorative', serif;
-      margin-bottom: 2rem; transition: color 0.2s;
-    }
-    .back-link:hover { color: var(--gold); }
-    .progress-bar {
-      height: 2px; background: var(--border); border-radius: 2px;
-      margin-bottom: 2.5rem; overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--gold-dim), var(--gold));
-      border-radius: 2px; transition: width 0.5s ease;
-    }
-    .screen { display: none; animation: fadeIn 0.4s ease; }
-    .screen.active { display: block; }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(14px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .q-number {
-      font-family: 'Cinzel Decorative', serif; font-size: 0.65rem;
-      color: var(--gold-dim); letter-spacing: 0.15em; margin-bottom: 0.6rem;
-    }
-    .q-text {
-      font-size: clamp(1.4rem, 4vw, 1.9rem); font-weight: 400;
-      line-height: 1.3; margin-bottom: 2rem;
-    }
-    /* Dragon grid */
+    /* ── Dragon thumbnail grid ─────────────────────────── */
     .dragon-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-      gap: 0.75rem;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 0.65rem;
     }
     .dragon-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 4px; padding: 0.75rem; cursor: pointer;
-      transition: border-color 0.2s, background 0.2s, transform 0.15s;
-      text-align: center; color: var(--text);
-      font-family: 'Crimson Pro', serif;
+      padding: 0.7rem 0.5rem 0.6rem;
+      text-align: center;
     }
-    .dragon-card:hover  { border-color: var(--gold-dim); background: #1a1410; transform: translateY(-2px); }
-    .dragon-card.selected { border-color: var(--gold); background: #1e1810; }
-    .dragon-preview {
-      width: 80px; height: 80px; object-fit: contain;
-      margin: 0 auto 0.5rem; display: block;
+    .dragon-thumb {
+      width: 72px; height: 72px;
+      object-fit: contain;
+      margin: 0 auto 0.45rem;
+      display: block;
+      opacity: 0.75;
+      transition: opacity 0.2s;
     }
-    .dragon-placeholder {
-      width: 80px; height: 80px; margin: 0 auto 0.5rem;
-      display: none; align-items: center; justify-content: center;
-      font-size: 2.2rem; opacity: 0.25;
+    .dragon-card:hover .dragon-thumb,
+    .dragon-card.selected .dragon-thumb { opacity: 1; }
+    .dragon-thumb-placeholder {
+      width: 72px; height: 72px;
+      margin: 0 auto 0.45rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; opacity: 0.2;
     }
     .dragon-card-name {
-      font-family: 'Cinzel Decorative', serif; font-size: 0.58rem;
-      color: var(--gold); letter-spacing: 0.04em; line-height: 1.4;
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 0.55rem;
+      color: var(--gold-dim);
+      letter-spacing: 0.05em;
+      line-height: 1.4;
     }
-    /* Color grid */
+    .dragon-card.selected .dragon-card-name { color: var(--gold); }
+
+    /* ── Color grid ────────────────────────────────────── */
     .color-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 0.75rem;
+      grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+      gap: 0.65rem;
     }
     .color-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 4px; padding: 0.9rem 1rem; cursor: pointer;
-      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+      padding: 0.85rem 1rem;
       display: flex; align-items: center; gap: 0.7rem;
-      color: var(--text); font-family: 'Crimson Pro', serif;
     }
-    .color-card:hover   { border-color: var(--gold-dim); background: #1a1410; transform: translateY(-2px); }
-    .color-card.selected { border-color: var(--gold); background: #1e1810; }
     .color-swatch {
-      width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
-      border: 2px solid rgba(255,255,255,0.12);
+      width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+      border: 2px solid rgba(255,255,255,0.1);
     }
-    .color-name { font-size: 0.95rem; }
-    .color-sub  { font-size: 0.75rem; color: var(--text-dim); font-style: italic; margin-top: 0.1rem; }
-    /* Nav */
-    .nav-row {
-      margin-top: 2rem; display: flex;
-      justify-content: space-between; align-items: center;
+    .color-name { font-size: 0.95rem; line-height: 1.2; }
+    .color-sub  { font-size: 0.72rem; color: var(--text-dim); font-style: italic; }
+
+    /* ── Option list (Q3, Q4) ──────────────────────────── */
+    .option-list {
+      display: flex; flex-direction: column; gap: 0.55rem;
     }
-    .btn {
-      border-radius: 3px; cursor: pointer;
-      font-family: 'Cinzel Decorative', serif; font-size: 0.78rem;
-      padding: 0.65rem 1.8rem; letter-spacing: 0.08em;
-      transition: background 0.2s, border-color 0.2s, color 0.2s;
-      background: transparent;
+    .option-card {
+      padding: 0.9rem 1.2rem;
+      display: flex; align-items: baseline; gap: 0.9rem;
     }
-    .btn-primary { border: 1px solid var(--gold-dim); color: var(--gold); }
-    .btn-primary:hover:not(:disabled) { background: rgba(201,168,76,0.1); border-color: var(--gold); }
-    .btn-primary:disabled { opacity: 0.3; cursor: not-allowed; }
-    .btn-ghost  { border: 1px solid var(--border); color: var(--text-dim); }
-    .btn-ghost:hover { border-color: var(--gold-dim); color: var(--text); }
-    .invisible  { opacity: 0; pointer-events: none; }
+    .option-key {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 0.6rem;
+      color: var(--gold-dim);
+      letter-spacing: 0.1em;
+      flex-shrink: 0;
+      width: 1.4rem;
+      text-align: right;
+      transition: color 0.2s;
+    }
+    .option-card.selected .option-key { color: var(--gold); }
+    .option-label { font-size: 1.05rem; }
+    .option-sub   { font-size: 0.78rem; color: var(--text-dim); font-style: italic; margin-top: 0.1rem; }
+
+    /* ── Reveal screen ─────────────────────────────────── */
+    #screen-reveal {
+      text-align: center;
+    }
+    .reveal-title {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(1.1rem, 3vw, 1.6rem);
+      color: var(--gold);
+      margin-bottom: 0.75rem;
+    }
+    .reveal-sub {
+      color: var(--text-dim);
+      font-style: italic;
+      font-size: 1rem;
+      margin-bottom: 2.5rem;
+      font-weight: 300;
+    }
+    .reveal-tags {
+      display: flex; flex-wrap: wrap;
+      justify-content: center; gap: 0.5rem;
+      margin-bottom: 2.5rem;
+    }
+    .tag {
+      background: var(--surface);
+      border: 1px solid var(--border-bright);
+      border-radius: 2px;
+      padding: 0.3rem 0.8rem;
+      font-size: 0.72rem;
+      font-family: 'Cinzel Decorative', serif;
+      color: var(--gold-dim);
+      letter-spacing: 0.06em;
+    }
+    .tag .tag-val { color: var(--text-dim); font-family: 'Crimson Pro', serif; font-style: italic; font-size: 0.85rem; letter-spacing: 0; }
   </style>
 </head>
 <body>
@@ -134,30 +120,51 @@
   <a href="../index.html" class="back-link">← The Hoard</a>
   <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
 
-  <!-- Q1 -->
+  <!-- ── Q1: Dragon species ───────────────────────────────── -->
   <div class="screen active" id="screen-1">
-    <div class="q-number">QUESTION 1 OF 2</div>
+    <div class="q-number">1 / 4</div>
     <div class="q-text">Which dragon do you think is coolest?</div>
     <div class="dragon-grid" id="dragon-grid"></div>
-    <div class="nav-row">
-      <span></span>
-      <button class="btn btn-primary" id="q1-next" disabled>Next →</button>
-    </div>
   </div>
 
-  <!-- Q2 -->
+  <!-- ── Q2: Color ────────────────────────────────────────── -->
   <div class="screen" id="screen-2">
-    <div class="q-number">QUESTION 2 OF 2</div>
+    <div class="q-number">2 / 4</div>
     <div class="q-text">What color calls to you from deep within the hoard?</div>
     <div class="color-grid" id="color-grid"></div>
-    <div class="nav-row">
-      <button class="btn btn-ghost" id="q2-back">← Back</button>
-      <button class="btn btn-primary" id="q2-submit" disabled>Reveal My Dragon →</button>
+  </div>
+
+  <!-- ── Q3: Activity → pattern type ─────────────────────── -->
+  <div class="screen" id="screen-3">
+    <div class="q-number">3 / 4</div>
+    <div class="q-text">Which of these do you enjoy most?</div>
+    <div class="option-list" id="activity-list"></div>
+  </div>
+
+  <!-- ── Q4: Title → pattern shape value ─────────────────── -->
+  <div class="screen" id="screen-4">
+    <div class="q-number">4 / 4</div>
+    <div class="q-text">Which of these titles do you relate to most?</div>
+    <div class="option-list" id="title-list"></div>
+  </div>
+
+  <!-- ── Reveal gate ──────────────────────────────────────── -->
+  <div class="screen" id="screen-reveal">
+    <div class="reveal-title">Your dragon awaits.</div>
+    <div class="reveal-sub">All choices made. Step through when you're ready.</div>
+    <div class="reveal-tags" id="reveal-tags"></div>
+    <div style="display:flex; justify-content:center; gap:0.75rem; flex-wrap:wrap;">
+      <button class="btn btn--ghost" id="retake-btn">Start Over</button>
+      <button class="btn btn--gold" id="reveal-btn">Reveal My Dragon →</button>
     </div>
   </div>
 </div>
 
 <script>
+  // ══════════════════════════════════════════════════════════
+  //  DATA
+  // ══════════════════════════════════════════════════════════
+
   const DRAGONS = [
     { file: 'b',         label: 'Dragon B'  },
     { file: 'base',      label: 'Base'      },
@@ -192,40 +199,97 @@
     { value: 'ochre',    label: 'Ochre',    sub: 'Dusty & ancient',     hex: '#c8860a' },
   ];
 
+  // Activity → pattern type
+  // patternType used as seed category in result.html
+  const ACTIVITIES = [
+    { value: 'running',  label: 'Running',          sub: 'The open road, the wind at your heels', patternType: 'stripes'  },
+    { value: 'climbing', label: 'Climbing',          sub: 'Rock and reach, summit in sight',       patternType: 'dots'     },
+    { value: 'basking',  label: 'Basking in the sun',sub: 'Still, warm, gloriously unhurried',     patternType: 'blobs'    },
+    { value: 'dancing',  label: 'Dancing',           sub: 'Sharp edges, sudden turns',             patternType: 'sharp'    },
+    { value: 'singing',  label: 'Singing',           sub: 'A long note unfurling in the air',      patternType: 'twisting' },
+    { value: 'surfing',  label: 'Surfing / Skating', sub: 'Ride the rhythm of the world',          patternType: 'waves'    },
+    { value: 'sleeping', label: 'Sleeping',          sub: 'Soft, deep, blissfully formless',       patternType: 'softblur' },
+  ];
+
+  // Title → pattern seed modifier (0–7)
+  const TITLES = [
+    { value: 'king',      label: 'King / Queen',  sub: 'Sovereignty flows from you',         seedMod: 0 },
+    { value: 'fighter',   label: 'Fighter',       sub: 'Conflict is how you know you\'re alive', seedMod: 1 },
+    { value: 'chief',     label: 'Chief',         sub: 'Others follow, without being asked',  seedMod: 2 },
+    { value: 'lover',     label: 'Lover',         sub: 'Everything you do, you do with heart', seedMod: 3 },
+    { value: 'explorer',  label: 'Explorer',      sub: 'There is always another horizon',     seedMod: 4 },
+    { value: 'builder',   label: 'Builder',       sub: 'You see what could be and make it',   seedMod: 5 },
+    { value: 'caretaker', label: 'Caretaker',     sub: 'Your strength is given to others',    seedMod: 6 },
+    { value: 'collector', label: 'Collector',     sub: 'Every beautiful thing deserves a home', seedMod: 7 },
+  ];
+
+  // ══════════════════════════════════════════════════════════
+  //  STATE
+  // ══════════════════════════════════════════════════════════
+  const answers = { dragon: null, color: null, colorHex: null, activity: null, patternType: null, title: null, seedMod: null };
+  const SCREENS  = ['screen-1','screen-2','screen-3','screen-4','screen-reveal'];
+  let current = 0;
+
+  // ══════════════════════════════════════════════════════════
+  //  COOKIES
+  // ══════════════════════════════════════════════════════════
   function setCookie(name, val, days = 365) {
     const d = new Date();
     d.setTime(d.getTime() + days * 86400000);
     document.cookie = `${name}=${encodeURIComponent(val)};expires=${d.toUTCString()};path=/`;
   }
+  function deleteCookie(name) {
+    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/`;
+  }
 
-  let selectedDragon = null;
-  let selectedColor  = null;
+  // ══════════════════════════════════════════════════════════
+  //  NAVIGATION
+  // ══════════════════════════════════════════════════════════
+  function goTo(n) {
+    document.getElementById(SCREENS[current]).classList.remove('active');
+    current = n;
+    document.getElementById(SCREENS[current]).classList.add('active');
+    // progress: 0 at Q1, 100 at reveal screen
+    const pct = (current / (SCREENS.length - 1)) * 100;
+    document.getElementById('progress').style.width = pct + '%';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
-  // Build dragon grid
+  // Auto-advance: call this after each Q is answered
+  function advance() {
+    if (current < SCREENS.length - 1) goTo(current + 1);
+    if (current === SCREENS.length - 1) buildRevealSummary();
+  }
+
+  // ══════════════════════════════════════════════════════════
+  //  BUILD GRIDS
+  // ══════════════════════════════════════════════════════════
+
+  // Q1 — Dragon species
   const dgrid = document.getElementById('dragon-grid');
   DRAGONS.forEach(d => {
     const btn = document.createElement('button');
-    btn.className = 'dragon-card';
+    btn.className = 'choice-card dragon-card';
     btn.innerHTML = `
-      <img class="dragon-preview" src="base/lines/${d.file}.png" alt="${d.label}"
+      <img class="dragon-thumb" src="base/lines/${d.file}.png" alt="${d.label}"
            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-      <div class="dragon-placeholder">🐉</div>
+      <div class="dragon-thumb-placeholder">🐉</div>
       <div class="dragon-card-name">${d.label}</div>
     `;
     btn.addEventListener('click', () => {
       dgrid.querySelectorAll('.dragon-card').forEach(c => c.classList.remove('selected'));
       btn.classList.add('selected');
-      selectedDragon = d.file;
-      document.getElementById('q1-next').disabled = false;
+      answers.dragon = d.file;
+      setTimeout(advance, 180); // tiny delay so selection flash is visible
     });
     dgrid.appendChild(btn);
   });
 
-  // Build color grid
+  // Q2 — Color
   const cgrid = document.getElementById('color-grid');
   COLORS.forEach(c => {
     const btn = document.createElement('button');
-    btn.className = 'color-card';
+    btn.className = 'choice-card color-card';
     btn.innerHTML = `
       <span class="color-swatch" style="background:${c.hex}"></span>
       <span>
@@ -236,31 +300,92 @@
     btn.addEventListener('click', () => {
       cgrid.querySelectorAll('.color-card').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
-      selectedColor = { value: c.value, hex: c.hex };
-      document.getElementById('q2-submit').disabled = false;
+      answers.color    = c.value;
+      answers.colorHex = c.hex;
+      setTimeout(advance, 180);
     });
     cgrid.appendChild(btn);
   });
 
-  // Navigation
-  let current = 0;
-  const screens = ['screen-1', 'screen-2'];
-  function goTo(n) {
-    document.getElementById(screens[current]).classList.remove('active');
-    current = n;
-    document.getElementById(screens[current]).classList.add('active');
-    document.getElementById('progress').style.width = `${(current / (screens.length - 1)) * 100}%`;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Q3 — Activity
+  const alist = document.getElementById('activity-list');
+  ACTIVITIES.forEach((a, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-card option-card';
+    btn.innerHTML = `
+      <span class="option-key">${String.fromCharCode(65+i)}</span>
+      <span>
+        <div class="option-label">${a.label}</div>
+        <div class="option-sub">${a.sub}</div>
+      </span>
+    `;
+    btn.addEventListener('click', () => {
+      alist.querySelectorAll('.option-card').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      answers.activity    = a.value;
+      answers.patternType = a.patternType;
+      setTimeout(advance, 180);
+    });
+    alist.appendChild(btn);
+  });
+
+  // Q4 — Title
+  const tlist = document.getElementById('title-list');
+  TITLES.forEach((t, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-card option-card';
+    btn.innerHTML = `
+      <span class="option-key">${String.fromCharCode(65+i)}</span>
+      <span>
+        <div class="option-label">${t.label}</div>
+        <div class="option-sub">${t.sub}</div>
+      </span>
+    `;
+    btn.addEventListener('click', () => {
+      tlist.querySelectorAll('.option-card').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      answers.title   = t.value;
+      answers.seedMod = t.seedMod;
+      setTimeout(advance, 180);
+    });
+    tlist.appendChild(btn);
+  });
+
+  // ══════════════════════════════════════════════════════════
+  //  REVEAL SUMMARY
+  // ══════════════════════════════════════════════════════════
+  const COLOR_LABELS = Object.fromEntries(COLORS.map(c => [c.value, c.label]));
+
+  function buildRevealSummary() {
+    const tags = document.getElementById('reveal-tags');
+    tags.innerHTML = '';
+    const items = [
+      { k: 'Dragon',  v: DRAGONS.find(d => d.file === answers.dragon)?.label || answers.dragon },
+      { k: 'Color',   v: COLOR_LABELS[answers.color] || answers.color },
+      { k: 'Nature',  v: ACTIVITIES.find(a => a.value === answers.activity)?.label || answers.activity },
+      { k: 'Title',   v: TITLES.find(t => t.value === answers.title)?.label || answers.title },
+    ];
+    items.forEach(it => {
+      const tag = document.createElement('div');
+      tag.className = 'tag';
+      tag.innerHTML = `${it.k}: <span class="tag-val">${it.v}</span>`;
+      tags.appendChild(tag);
+    });
   }
 
-  document.getElementById('q1-next').addEventListener('click', () => { if (selectedDragon) goTo(1); });
-  document.getElementById('q2-back').addEventListener('click', () => goTo(0));
-  document.getElementById('q2-submit').addEventListener('click', () => {
-    if (!selectedDragon || !selectedColor) return;
-    const answers = { dragon: selectedDragon, color: selectedColor.value, colorHex: selectedColor.hex };
+  // ══════════════════════════════════════════════════════════
+  //  REVEAL / RETAKE
+  // ══════════════════════════════════════════════════════════
+  document.getElementById('reveal-btn').addEventListener('click', () => {
     setCookie('quiz_dragon_person_01_answers', JSON.stringify(answers));
     setCookie('quiz_dragon_person_01_done', 'true');
     window.location.href = 'result.html';
+  });
+
+  document.getElementById('retake-btn').addEventListener('click', () => {
+    deleteCookie('quiz_dragon_person_01_answers');
+    deleteCookie('quiz_dragon_person_01_done');
+    window.location.reload();
   });
 </script>
 </body>

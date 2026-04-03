@@ -1,0 +1,211 @@
+/* ═══════════════════════════════════════════════════════════
+   THE PERSONALITY HOARD — shared.css
+   Import this on every page. Add page-specific styles inline.
+   ═══════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap');
+
+/* ── Tokens ─────────────────────────────────────────────── */
+:root {
+  --bg:             #000000;
+  --surface:        #0d0b09;
+  --surface-2:      #141210;
+  --border:         #2a1f14;
+  --border-bright:  #4a3828;
+  --gold:           #c9a84c;
+  --gold-dim:       #7a6030;
+  --gold-faint:     rgba(201,168,76,0.07);
+  --ember:          #e05c2a;
+  --teal:           #2a9d8f;
+  --text:           #e8dcc8;
+  --text-dim:       #7a6a50;
+  --text-muted:     #3e3020;
+  --radius:         4px;
+  --ease:           0.2s ease;
+}
+
+/* ── Reset ──────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { color-scheme: dark; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Crimson Pro', Georgia, serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Layout ─────────────────────────────────────────────── */
+.container        { max-width: 680px; width: 100%; }
+.container--sm    { max-width: 500px; width: 100%; }
+.container--lg    { max-width: 860px; width: 100%; }
+
+/* ── Typography ─────────────────────────────────────────── */
+.display {
+  font-family: 'Cinzel Decorative', serif;
+  color: var(--gold);
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+  text-shadow: 0 0 40px rgba(201,168,76,0.2);
+}
+.display--lg  { font-size: clamp(1.5rem, 5vw, 2.4rem); }
+.display--md  { font-size: clamp(1.1rem, 3vw, 1.6rem); }
+.display--sm  { font-size: 0.8rem; letter-spacing: 0.12em; }
+
+.q-number {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.62rem;
+  color: var(--gold-dim);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.q-text {
+  font-size: clamp(1.25rem, 3.5vw, 1.75rem);
+  font-weight: 400;
+  line-height: 1.35;
+  margin-bottom: 1.75rem;
+}
+
+/* ── Navigation ─────────────────────────────────────────── */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--gold-dim);
+  text-decoration: none;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  margin-bottom: 2rem;
+  transition: color var(--ease);
+}
+.back-link:hover { color: var(--gold); }
+
+/* ── Progress bar ───────────────────────────────────────── */
+.progress-bar {
+  height: 1px;
+  background: var(--border);
+  margin-bottom: 2.5rem;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+  transition: width 0.45s ease;
+}
+
+/* ── Buttons ────────────────────────────────────────────── */
+.btn {
+  display: inline-block;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.65rem 1.8rem;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  text-align: center;
+  background: transparent;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  -webkit-appearance: none;
+  transition: background var(--ease), border-color var(--ease), color var(--ease), transform 0.1s;
+}
+.btn:active:not(:disabled) { transform: scale(0.97); }
+
+.btn--gold {
+  border-color: var(--gold-dim);
+  color: var(--gold);
+}
+.btn--gold:hover:not(:disabled) {
+  background: rgba(201,168,76,0.1);
+  border-color: var(--gold);
+}
+
+.btn--ghost {
+  border-color: var(--border-bright);
+  color: var(--text-dim);
+}
+.btn--ghost:hover:not(:disabled) {
+  border-color: var(--gold-dim);
+  color: var(--text);
+}
+
+.btn--teal {
+  border-color: var(--teal);
+  color: var(--teal);
+}
+.btn--teal:hover:not(:disabled) {
+  background: rgba(42,157,143,0.12);
+  border-color: #3dbdb0;
+  color: #3dbdb0;
+}
+
+.btn:disabled { opacity: 0.25; cursor: not-allowed; }
+
+/* ── Choice cards (shared by all quizzes) ───────────────── */
+.choice-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  color: var(--text);
+  font-family: 'Crimson Pro', serif;
+  text-align: left;
+  transition: border-color var(--ease), background var(--ease), transform 0.15s;
+  -webkit-appearance: none;
+}
+.choice-card:hover {
+  border-color: var(--border-bright);
+  background: var(--surface-2);
+  transform: translateY(-2px);
+}
+.choice-card.selected {
+  border-color: var(--gold);
+  background: #1a1408;
+}
+.choice-card:active { transform: scale(0.98); }
+
+/* ── Screen transitions ─────────────────────────────────── */
+.screen { display: none; }
+.screen.active { display: block; animation: screenIn 0.35s ease; }
+@keyframes screenIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Nav row (prev/next) ────────────────────────────────── */
+.nav-row {
+  margin-top: 1.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ── Spinner ────────────────────────────────────────────── */
+.spinner {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  border-top-color: var(--gold-dim);
+  animation: spin 0.85s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Floating animation (for result dragon) ─────────────── */
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+@keyframes pulse-glow {
+  0%,100% { opacity: 0.55; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.06); }
+}

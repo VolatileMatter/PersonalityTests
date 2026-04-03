@@ -6,68 +6,19 @@
   <title>What Dragon Are You?</title>
   <link rel="stylesheet" href="../shared.css">
   <style>
-    /* ── Location grid ─────────────────────────────────── */
-    .location-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 0.65rem;
+    /* ── Reveal screen ───────────────────────────────────── */
+    #screen-reveal {
+      min-height: 60vh;
+      display: none;
+      flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; gap: 1.25rem;
     }
-    .location-card {
-      padding: 1rem 1.1rem;
-      display: flex; flex-direction: column;
-      align-items: flex-start; gap: 0.2rem;
-    }
-    .location-emoji { font-size: 1.7rem; margin-bottom: 0.2rem; line-height: 1; }
-    .location-name  {
-      font-family: 'Cinzel Decorative', serif;
-      font-size: 0.6rem; color: var(--gold-dim);
-      letter-spacing: 0.06em; line-height: 1.4;
-    }
-    .location-sub   { font-size: 0.78rem; color: var(--text-dim); font-style: italic; }
-    .location-card.selected .location-name { color: var(--gold); }
-
-    /* ── Color grid ────────────────────────────────────── */
-    .color-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
-      gap: 0.65rem;
-    }
-    .color-card {
-      padding: 0.85rem 1rem;
-      display: flex; align-items: center; gap: 0.7rem;
-    }
-    .color-swatch {
-      width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
-      border: 2px solid rgba(255,255,255,0.1);
-    }
-    .color-name { font-size: 0.95rem; line-height: 1.2; }
-    .color-sub  { font-size: 0.72rem; color: var(--text-dim); font-style: italic; }
-
-    /* ── Option list ───────────────────────────────────── */
-    .option-list { display: flex; flex-direction: column; gap: 0.5rem; }
-    .option-card {
-      padding: 0.85rem 1.2rem;
-      display: flex; align-items: flex-start; gap: 0.9rem;
-    }
-    .option-key {
-      font-family: 'Cinzel Decorative', serif;
-      font-size: 0.58rem; color: var(--gold-dim);
-      letter-spacing: 0.1em; flex-shrink: 0;
-      width: 1.4rem; text-align: right; padding-top: 0.2rem;
-      transition: color 0.2s;
-    }
-    .option-card.selected .option-key { color: var(--gold); }
-    .option-label { font-size: 1rem; line-height: 1.35; }
-    .option-sub   { font-size: 0.76rem; color: var(--text-dim); font-style: italic; margin-top: 0.15rem; }
-
-    /* ── Reveal screen ─────────────────────────────────── */
-    #screen-reveal { text-align: center; padding: 4rem 0; }
-    #screen-reveal.screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.25rem; min-height: 60vh; }
+    #screen-reveal.active { display: flex; animation: screenIn 0.35s ease; }
 
     .reveal-glyph {
       font-size: 5.5rem; line-height: 1;
-      animation: breathe 3.5s ease-in-out infinite;
       filter: drop-shadow(0 0 20px rgba(201,168,76,0.3));
+      animation: breathe 3.5s ease-in-out infinite;
     }
     @keyframes breathe {
       0%,100% { transform: scale(1);    filter: drop-shadow(0 0 16px rgba(201,168,76,0.3)); }
@@ -83,13 +34,8 @@
       font-size: 1.05rem; font-weight: 300;
     }
     .reveal-actions {
-      display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center;
-      margin-top: 0.5rem;
-    }
-    .btn--reveal {
-      font-size: 0.88rem !important;
-      padding: 1rem 3.5rem !important;
-      letter-spacing: 0.12em !important;
+      display: flex; gap: 0.75rem; flex-wrap: wrap;
+      justify-content: center; margin-top: 0.5rem;
     }
   </style>
 </head>
@@ -98,149 +44,35 @@
   <a href="../index.html" class="back-link">← The Hoard</a>
   <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
 
-  <!-- Q1: Location → dragon species -->
-  <div class="screen active" id="screen-1">
-    <div class="q-number">1 / 5</div>
-    <div class="q-text">Where would you most want to live?</div>
-    <div class="location-grid" id="location-grid"></div>
-  </div>
+  <!-- Question screens injected here by JS -->
+  <div id="question-host"></div>
 
-  <!-- Q2: Color -->
-  <div class="screen" id="screen-2">
-    <div class="q-number">2 / 5</div>
-    <div class="q-text">What color calls to you from deep within the hoard?</div>
-    <div class="color-grid" id="color-grid"></div>
-  </div>
-
-  <!-- Q3: Eye style (seeds eye procgen independently) -->
-  <div class="screen" id="screen-3">
-    <div class="q-number">3 / 5</div>
-    <div class="q-text">Which of these describes you best?</div>
-    <div class="option-list" id="eye-list"></div>
-  </div>
-
-  <!-- Q4: Activity → pattern type -->
-  <div class="screen" id="screen-4">
-    <div class="q-number">4 / 5</div>
-    <div class="q-text">Which of these do you enjoy most?</div>
-    <div class="option-list" id="activity-list"></div>
-  </div>
-
-  <!-- Q5: Personality → pattern seed modifier -->
-  <div class="screen" id="screen-5">
-    <div class="q-number">5 / 5</div>
-    <div class="q-text">Which of these is you?</div>
-    <div class="option-list" id="personality-list"></div>
-  </div>
-
-  <!-- Reveal gate -->
-  <div class="screen" id="screen-reveal">
+  <!-- Reveal gate (always last) -->
+  <div id="screen-reveal">
     <div class="reveal-glyph">🐉</div>
     <div class="reveal-title">Your dragon awaits.</div>
     <div class="reveal-sub">Step through when you're ready.</div>
     <div class="reveal-actions">
       <button class="btn btn--ghost" id="retake-btn">Start Over</button>
-      <button class="btn btn--gold btn--reveal" id="reveal-btn">Reveal My Dragon →</button>
+      <button class="btn btn--gold" style="font-size:0.88rem;padding:1rem 3.5rem;letter-spacing:0.12em"
+              id="reveal-btn">Reveal My Dragon →</button>
     </div>
   </div>
 </div>
 
-<script>
-// ══════════════════════════════════════════════════
-//  Q1 — LOCATIONS → dragon file
-// ══════════════════════════════════════════════════
-const LOCATIONS = [
-  { file: 'skywing',   emoji: '🏔️',  label: 'Mountain Peak',           sub: 'Wind-scraped stone, thin cold air'           },
-  { file: 'icewing',   emoji: '🧊',  label: 'Arctic Tundra',            sub: 'Silence and permafrost and pale sky'         },
-  { file: 'seawing',   emoji: '🌊',  label: 'Open Ocean',               sub: 'Horizon in every direction'                  },
-  { file: 'seawingb',  emoji: '🦀',  label: 'Coastal Tide Pools',       sub: 'The place where sea meets stone'             },
-  { file: 'rainwing',  emoji: '☁️',  label: 'Cloud Canopy',             sub: 'Above the trees, below the stars'           },
-  { file: 'leafwing',  emoji: '🌿',  label: 'Ancient Rainforest',       sub: 'Dark, wet, alive with sound'                 },
-  { file: 'mudwing',   emoji: '🌾',  label: 'River Delta',              sub: 'Slow water, reed beds, damp earth'           },
-  { file: 'sandwing',  emoji: '🏜️',  label: 'Desert Wastes',            sub: 'Heat shimmer and endless dunes'              },
-  { file: 'hivewing',  emoji: '🏙️',  label: 'Neon City',                sub: 'Towers of glass and humming cables'          },
-  { file: 'nightwing', emoji: '🌃',  label: 'City at 3am',              sub: 'Empty streets, orange lamplight'             },
-  { file: 'silkwing',  emoji: '🌸',  label: 'Botanical Garden',         sub: 'Humid glass house, ordered wildness'         },
-  { file: 'b',         emoji: '🅿️',  label: 'A Parking Lot',            sub: 'Fluorescent lights. Faded lines.'            },
-  { file: 'base',      emoji: '🏘️',  label: 'The Suburbs',              sub: 'Sprinklers at 6am. Someone mowing.'          },
-  { file: 'beta',      emoji: '🦷',  label: "Dentist's Waiting Room",   sub: 'Old magazines. Soft jazz.'                   },
-  { file: 'betab',     emoji: '⛽',  label: 'Highway Rest Stop',        sub: 'Vending machine hum. Broken soap dispenser.' },
-  { file: 'c',         emoji: '📊',  label: 'Conference Room B',        sub: 'Wrong aspect ratio. Lukewarm coffee.'        },
+<script type="module">
+// ── To add a new question: just append its path to this array ──
+const QUESTION_MODULES = [
+  './questions/q1_location.js',
+  './questions/q2_color.js',
+  './questions/q3_eye.js',
+  './questions/q4_activity.js',
+  './questions/q5_personality.js',
 ];
 
-// ══════════════════════════════════════════════════
-//  Q2 — COLORS
-// ══════════════════════════════════════════════════
-const COLORS = [
-  { value: 'crimson',  label: 'Crimson',  sub: 'Fierce & passionate', hex: '#cc2200' },
-  { value: 'gold',     label: 'Gold',     sub: 'Ancient & radiant',   hex: '#c9a84c' },
-  { value: 'cobalt',   label: 'Cobalt',   sub: 'Deep & mysterious',   hex: '#1a4fa0' },
-  { value: 'emerald',  label: 'Emerald',  sub: 'Wild & verdant',      hex: '#1a7a45' },
-  { value: 'amethyst', label: 'Amethyst', sub: 'Arcane & dreaming',   hex: '#6b3fa0' },
-  { value: 'ivory',    label: 'Ivory',    sub: 'Pure & untamed',      hex: '#e8dcc8' },
-  { value: 'copper',   label: 'Copper',   sub: 'Earthy & ancient',    hex: '#b87333' },
-  { value: 'rose',     label: 'Rose',     sub: 'Soft & deadly',       hex: '#c05080' },
-  { value: 'teal',     label: 'Teal',     sub: 'Current & tide',      hex: '#2a9d8f' },
-  { value: 'silver',   label: 'Silver',   sub: 'Cold & precise',      hex: '#9ab0c0' },
-  { value: 'ochre',    label: 'Ochre',    sub: 'Dusty & ancient',     hex: '#c8860a' },
-];
-
-// ══════════════════════════════════════════════════
-//  Q3 — EYE STYLES
-//  eyeStyle value is used + dragon to seed eye procgen
-// ══════════════════════════════════════════════════
-const EYE_STYLES = [
-  { value: 'passionate',  label: 'Passionate about silly things',  sub: 'You will die on this hill. It is a very small hill.',     style: 'pink_purple_swirl'     },
-  { value: 'loyal',       label: 'Loyal to a fault',               sub: 'You have forgiven things you probably shouldn\'t have.',   style: 'gold_white_swirl'      },
-  { value: 'brave',       label: 'Brave',                          sub: 'Not fearless. You just go anyway.',                        style: 'green_gold_split'      },
-  { value: 'quiet_lover', label: 'Quiet, but love passionately',   sub: 'Depth over volume, always.',                               style: 'purple_blue_blob'      },
-  { value: 'silly',       label: 'Silly',                          sub: 'Deeply, committedly, magnificently silly.',                 style: 'rainbow_swirl'         },
-  { value: 'wizard',      label: 'Problem-solving wizard',         sub: 'You see the solution before anyone else sees the problem.', style: 'cyan_blue_space'       },
-  { value: 'misunderstood', label: 'Misunderstood artist',         sub: 'They just don\'t get it yet.',                             style: 'black_purple_stripes'  },
-  { value: 'understood',  label: 'Perfectly understood artist',    sub: 'They get it. You\'re just that good.',                     style: 'pink_purple_hearts'    },
-];
-
-// ══════════════════════════════════════════════════
-//  Q4 — ACTIVITIES → pattern type
-// ══════════════════════════════════════════════════
-const ACTIVITIES = [
-  { value: 'running',  label: 'Running',           sub: 'The open road, the wind at your heels', patternType: 'stripes'   },
-  { value: 'climbing', label: 'Climbing',           sub: 'Rock and reach, summit in sight',       patternType: 'dots'      },
-  { value: 'basking',  label: 'Basking in the sun', sub: 'Still, warm, gloriously unhurried',     patternType: 'blobs'     },
-  { value: 'dancing',  label: 'Dancing',            sub: 'Sharp edges, sudden turns',             patternType: 'sharp'     },
-  { value: 'singing',  label: 'Singing',            sub: 'A long note unfurling in the air',      patternType: 'twisting'  },
-  { value: 'surfing',  label: 'Surfing / Skating',  sub: 'Ride the rhythm of the world',          patternType: 'waves'     },
-  { value: 'sleeping', label: 'Sleeping',           sub: 'Soft, deep, blissfully formless',       patternType: 'softblur'  },
-];
-
-// ══════════════════════════════════════════════════
-//  Q5 — PERSONALITY → seeds pattern RNG
-// ══════════════════════════════════════════════════
-const PERSONALITIES = [
-  { value: 'locked_in',   label: 'Locked in',                          sub: null,                             seedMod: 0 },
-  { value: 'born_to_shit', label: 'Born to shit, forced to wipe',      sub: null,                             seedMod: 1 },
-  { value: 'jester',      label: "The world's a stage and I'm the jester", sub: null,                         seedMod: 2 },
-  { value: 'lone_wolf',   label: 'Lone wolf',                          sub: 'Black fur. Bright red eyes. Silver claws. Super big fangs.', seedMod: 3 },
-  { value: 'captain',     label: 'Captain of this sinking ship',       sub: null,                             seedMod: 4 },
-  { value: 'director',    label: 'Director of the shitshow',           sub: null,                             seedMod: 5 },
-];
-
-// ══════════════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════════════
-const answers = {
-  dragon: null,
-  color: null, colorHex: null,
-  eyeStyle: null, eyeStyleValue: null,
-  patternType: null,
-  seedMod: null,
-};
-const SCREENS = ['screen-1','screen-2','screen-3','screen-4','screen-5','screen-reveal'];
-let current = 0;
-
-// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
 //  COOKIES
-// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
 function setCookie(name, val, days = 365) {
   const d = new Date();
   d.setTime(d.getTime() + days * 86400000);
@@ -250,318 +82,79 @@ function deleteCookie(name) {
   document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/`;
 }
 
-// ══════════════════════════════════════════════════
-//  NAVIGATION — auto-advance on selection
-// ══════════════════════════════════════════════════
-function goTo(n) {
-  document.getElementById(SCREENS[current]).classList.remove('active');
-  current = n;
-  document.getElementById(SCREENS[current]).classList.add('active');
-  document.getElementById('progress').style.width =
-    (current / (SCREENS.length - 1) * 100) + '%';
+// ══════════════════════════════════════════════════════════
+//  ORCHESTRATOR
+// ══════════════════════════════════════════════════════════
+const host    = document.getElementById('question-host');
+const reveal  = document.getElementById('screen-reveal');
+const progress = document.getElementById('progress');
+
+// Accumulated answers — each question merges its payload in
+const answers = { descriptions: [] };
+
+// Total steps = questions + reveal screen
+const TOTAL = QUESTION_MODULES.length + 1;
+
+function setProgress(step) {
+  progress.style.width = (step / (TOTAL - 1) * 100) + '%';
+}
+
+// Load all modules up front, then drive sequentially
+const modules = await Promise.all(QUESTION_MODULES.map(p => import(p)));
+
+let currentStep = 0;
+
+function showStep(index) {
+  // Clear host
+  host.innerHTML = '';
+  currentStep = index;
+  setProgress(index);
   window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-function advance() {
-  if (current < SCREENS.length - 1) goTo(current + 1);
-}
 
-// ══════════════════════════════════════════════════
-//  SEEDED PRNG (for eye previews)
-// ══════════════════════════════════════════════════
-function mulberry32(seed) {
-  return function() {
-    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
-    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
-    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
-    return ((t ^ t >>> 14) >>> 0) / 4294967296;
-  };
-}
-function strHash(s) {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
-  return h >>> 0;
-}
-
-// ══════════════════════════════════════════════════
-//  EYE PREVIEW — mini canvas rendering per style
-//  Drawn into a 42×42 canvas thumbnail
-// ══════════════════════════════════════════════════
-function drawEyePreview(canvas, style) {
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  const cx = W/2, cy = H/2, r = Math.min(W,H)/2 - 1;
-  ctx.clearRect(0, 0, W, H);
-
-  // Clip to circle
-  ctx.save();
-  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.clip();
-
-  const rng = mulberry32(strHash(style) ^ 0xdeadbeef);
-
-  switch(style) {
-    case 'pink_purple_swirl': {
-      const g = ctx.createRadialGradient(cx,cy,0,cx,cy,r);
-      g.addColorStop(0,'#ff80c0'); g.addColorStop(0.5,'#c050c0'); g.addColorStop(1,'#6020a0');
-      ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
-      // swirl lines
-      ctx.strokeStyle='rgba(255,200,255,0.5)'; ctx.lineWidth=1.5;
-      for(let i=0;i<4;i++){
-        ctx.beginPath();
-        for(let a=0;a<Math.PI*4;a+=0.1){
-          const rad=(a/(Math.PI*4))*r*0.9;
-          const px=cx+Math.cos(a+i*1.5)*rad; const py=cy+Math.sin(a+i*1.5)*rad;
-          a<0.1?ctx.moveTo(px,py):ctx.lineTo(px,py);
-        }
-        ctx.stroke();
-      }
-      break;
-    }
-    case 'gold_white_swirl': {
-      const g = ctx.createRadialGradient(cx,cy,0,cx,cy,r);
-      g.addColorStop(0,'#fff8e0'); g.addColorStop(0.5,'#c9a84c'); g.addColorStop(1,'#7a5010');
-      ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
-      ctx.strokeStyle='rgba(255,255,220,0.6)'; ctx.lineWidth=1.5;
-      for(let i=0;i<4;i++){
-        ctx.beginPath();
-        for(let a=0;a<Math.PI*4;a+=0.1){
-          const rad=(a/(Math.PI*4))*r*0.9;
-          const px=cx+Math.cos(a+i*1.5)*rad; const py=cy+Math.sin(a+i*1.5)*rad;
-          a<0.1?ctx.moveTo(px,py):ctx.lineTo(px,py);
-        }
-        ctx.stroke();
-      }
-      break;
-    }
-    case 'green_gold_split': {
-      // Left half green, right half gold
-      const gl = ctx.createLinearGradient(0,0,W,0);
-      gl.addColorStop(0,'#1a7a30'); gl.addColorStop(0.48,'#1a9a40');
-      gl.addColorStop(0.52,'#c9a84c'); gl.addColorStop(1,'#8a6010');
-      ctx.fillStyle=gl; ctx.fillRect(0,0,W,H);
-      // split line
-      ctx.strokeStyle='rgba(255,255,200,0.4)'; ctx.lineWidth=1;
-      ctx.beginPath(); ctx.moveTo(cx,0); ctx.lineTo(cx,H); ctx.stroke();
-      break;
-    }
-    case 'purple_blue_blob': {
-      ctx.fillStyle='#0a0520'; ctx.fillRect(0,0,W,H);
-      // blurry blobs via radial gradients
-      [[cx-5,cy-4,'#4020a0'],[cx+4,cy+3,'#1040c0'],[cx,cy,'#6030b0']].forEach(([bx,by,col])=>{
-        const bg=ctx.createRadialGradient(bx,by,0,bx,by,r*0.7);
-        bg.addColorStop(0,col+'cc'); bg.addColorStop(1,'transparent');
-        ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
-      });
-      break;
-    }
-    case 'rainbow_swirl': {
-      for(let i=0;i<360;i+=3){
-        const a1=i*Math.PI/180, a2=(i+3)*Math.PI/180;
-        ctx.beginPath(); ctx.moveTo(cx,cy);
-        ctx.arc(cx,cy,r,a1,a2); ctx.closePath();
-        ctx.fillStyle=`hsl(${i},100%,55%)`; ctx.fill();
-      }
-      // white swirl overlay
-      ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=1.2;
-      for(let i=0;i<3;i++){
-        ctx.beginPath();
-        for(let a=0;a<Math.PI*3;a+=0.08){
-          const rad=(a/(Math.PI*3))*r*0.85;
-          const px=cx+Math.cos(a+i*2.1)*rad; const py=cy+Math.sin(a+i*2.1)*rad;
-          a<0.08?ctx.moveTo(px,py):ctx.lineTo(px,py);
-        }
-        ctx.stroke();
-      }
-      break;
-    }
-    case 'cyan_blue_space': {
-      ctx.fillStyle='#000820'; ctx.fillRect(0,0,W,H);
-      // space blobs
-      [[cx-4,cy-4,'#00c0d0'],[cx+5,cy+3,'#0040c0']].forEach(([bx,by,col])=>{
-        const bg=ctx.createRadialGradient(bx,by,0,bx,by,r*0.65);
-        bg.addColorStop(0,col+'bb'); bg.addColorStop(1,'transparent');
-        ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
-      });
-      // gold sparkles
-      ctx.fillStyle='#ffd700';
-      for(let i=0;i<8;i++){
-        const sx=rng()*W, sy=rng()*H, sr=0.6+rng()*1.2;
-        ctx.beginPath(); ctx.arc(sx,sy,sr,0,Math.PI*2); ctx.fill();
-      }
-      break;
-    }
-    case 'black_purple_stripes': {
-      ctx.fillStyle='#080510'; ctx.fillRect(0,0,W,H);
-      ctx.strokeStyle='#3a1060'; ctx.lineWidth=3;
-      for(let i=-W;i<W*2;i+=6){
-        ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i+H,H); ctx.stroke();
-      }
-      break;
-    }
-    case 'pink_purple_hearts': {
-      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
-      g.addColorStop(0,'#ffb0d0'); g.addColorStop(1,'#c060a0');
-      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
-      // tiny hearts
-      ctx.fillStyle='rgba(160,40,120,0.5)';
-      [[cx-7,cy-5],[cx+6,cy+4],[cx-2,cy+8]].forEach(([hx,hy])=>{
-        const s=3;
-        ctx.beginPath();
-        ctx.moveTo(hx,hy+s*0.5);
-        ctx.bezierCurveTo(hx,hy-s*0.3, hx-s*1.2,hy-s*0.8, hx-s*1.2,hy);
-        ctx.bezierCurveTo(hx-s*1.2,hy+s*0.8, hx,hy+s*1.2, hx,hy+s*1.5);
-        ctx.bezierCurveTo(hx,hy+s*1.2, hx+s*1.2,hy+s*0.8, hx+s*1.2,hy);
-        ctx.bezierCurveTo(hx+s*1.2,hy-s*0.8, hx,hy-s*0.3, hx,hy+s*0.5);
-        ctx.fill();
-      });
-      break;
-    }
+  if (index >= modules.length) {
+    // Show reveal screen
+    reveal.classList.add('active');
+    return;
   }
-  ctx.restore();
-  // iris ring
-  ctx.beginPath(); ctx.arc(cx,cy,r*0.35,0,Math.PI*2);
-  ctx.strokeStyle='rgba(0,0,0,0.6)'; ctx.lineWidth=1.5; ctx.stroke();
-  // pupil
-  ctx.beginPath(); ctx.arc(cx,cy,r*0.18,0,Math.PI*2);
-  ctx.fillStyle='rgba(0,0,0,0.8)'; ctx.fill();
+
+  reveal.classList.remove('active');
+
+  const mod = modules[index];
+
+  // Build screen wrapper
+  const screen = document.createElement('div');
+  screen.className = 'screen active';
+
+  // Question header
+  const qNum = document.createElement('div');
+  qNum.className = 'q-number';
+  qNum.textContent = `${index + 1} / ${modules.length}`;
+
+  const qText = document.createElement('div');
+  qText.className = 'q-text';
+  qText.textContent = mod.meta.prompt;
+
+  screen.appendChild(qNum);
+  screen.appendChild(qText);
+
+  // Let the module render its own UI
+  mod.render(screen, (payload) => {
+    // Merge payload into answers; accumulate description separately
+    const { description, ...rest } = payload;
+    Object.assign(answers, rest);
+    if (description) answers.descriptions.push(description);
+
+    // Advance to next step
+    showStep(index + 1);
+  });
+
+  host.appendChild(screen);
 }
 
-// ══════════════════════════════════════════════════
-//  BUILD Q1 — location grid
-// ══════════════════════════════════════════════════
-const lgrid = document.getElementById('location-grid');
-LOCATIONS.forEach(loc => {
-  const btn = document.createElement('button');
-  btn.className = 'choice-card location-card';
-  btn.innerHTML = `
-    <div class="location-emoji">${loc.emoji}</div>
-    <div class="location-name">${loc.label}</div>
-    <div class="location-sub">${loc.sub}</div>
-  `;
-  btn.addEventListener('click', () => {
-    lgrid.querySelectorAll('.location-card').forEach(c => c.classList.remove('selected'));
-    btn.classList.add('selected');
-    answers.dragon = loc.file;
-    setTimeout(advance, 180);
-  });
-  lgrid.appendChild(btn);
-});
+// Kick off
+showStep(0);
 
-// ══════════════════════════════════════════════════
-//  BUILD Q2 — color grid
-// ══════════════════════════════════════════════════
-const cgrid = document.getElementById('color-grid');
-COLORS.forEach(c => {
-  const btn = document.createElement('button');
-  btn.className = 'choice-card color-card';
-  btn.innerHTML = `
-    <span class="color-swatch" style="background:${c.hex}"></span>
-    <span>
-      <div class="color-name">${c.label}</div>
-      <div class="color-sub">${c.sub}</div>
-    </span>
-  `;
-  btn.addEventListener('click', () => {
-    cgrid.querySelectorAll('.color-card').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    answers.color = c.value;
-    answers.colorHex = c.hex;
-    setTimeout(advance, 180);
-  });
-  cgrid.appendChild(btn);
-});
-
-// ══════════════════════════════════════════════════
-//  BUILD Q3 — eye style list (with mini previews)
-// ══════════════════════════════════════════════════
-const elist = document.getElementById('eye-list');
-EYE_STYLES.forEach((e, i) => {
-  const btn = document.createElement('button');
-  btn.className = 'choice-card option-card';
-
-  // Build mini preview canvas
-  const previewWrap = document.createElement('div');
-  previewWrap.style.cssText = 'width:36px;height:36px;border-radius:50%;overflow:hidden;flex-shrink:0;border:1px solid var(--border-bright);background:#111;';
-  const previewCanvas = document.createElement('canvas');
-  previewCanvas.width = 36; previewCanvas.height = 36;
-  previewCanvas.style.cssText = 'width:36px;height:36px;';
-  previewWrap.appendChild(previewCanvas);
-
-  btn.innerHTML = `
-    <span class="option-key">${String.fromCharCode(65+i)}</span>
-    <span style="display:flex;align-items:center;gap:0.8rem;flex:1">
-      <span>
-        <div class="option-label">${e.label}</div>
-        <div class="option-sub">${e.sub}</div>
-      </span>
-    </span>
-  `;
-  // Insert preview after key
-  btn.querySelector('span[style]').prepend(previewWrap);
-
-  // Draw preview after DOM insertion (needs to be visible)
-  requestAnimationFrame(() => drawEyePreview(previewCanvas, e.style));
-
-  btn.addEventListener('click', () => {
-    elist.querySelectorAll('.option-card').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    answers.eyeStyle = e.style;
-    answers.eyeStyleValue = e.value;
-    setTimeout(advance, 180);
-  });
-  elist.appendChild(btn);
-});
-
-// ══════════════════════════════════════════════════
-//  BUILD Q4 — activity list
-// ══════════════════════════════════════════════════
-const alist = document.getElementById('activity-list');
-ACTIVITIES.forEach((a, i) => {
-  const btn = document.createElement('button');
-  btn.className = 'choice-card option-card';
-  btn.innerHTML = `
-    <span class="option-key">${String.fromCharCode(65+i)}</span>
-    <span>
-      <div class="option-label">${a.label}</div>
-      <div class="option-sub">${a.sub}</div>
-    </span>
-  `;
-  btn.addEventListener('click', () => {
-    alist.querySelectorAll('.option-card').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    answers.activity    = a.value;
-    answers.patternType = a.patternType;
-    setTimeout(advance, 180);
-  });
-  alist.appendChild(btn);
-});
-
-// ══════════════════════════════════════════════════
-//  BUILD Q5 — personality list
-// ══════════════════════════════════════════════════
-const plist = document.getElementById('personality-list');
-PERSONALITIES.forEach((p, i) => {
-  const btn = document.createElement('button');
-  btn.className = 'choice-card option-card';
-  btn.innerHTML = `
-    <span class="option-key">${String.fromCharCode(65+i)}</span>
-    <span>
-      <div class="option-label">${p.label}</div>
-      ${p.sub ? `<div class="option-sub">${p.sub}</div>` : ''}
-    </span>
-  `;
-  btn.addEventListener('click', () => {
-    plist.querySelectorAll('.option-card').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    answers.personality = p.value;
-    answers.seedMod     = p.seedMod;
-    setTimeout(advance, 180);
-  });
-  plist.appendChild(btn);
-});
-
-// ══════════════════════════════════════════════════
-//  REVEAL + RETAKE
-// ══════════════════════════════════════════════════
+// ── Reveal ────────────────────────────────────────────────
 document.getElementById('reveal-btn').addEventListener('click', () => {
   setCookie('quiz_dragon_person_01_answers', JSON.stringify(answers));
   setCookie('quiz_dragon_person_01_done', 'true');

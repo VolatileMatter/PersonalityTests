@@ -7,6 +7,7 @@ export const meta = {
 
 // patternColorHex is used in result.html to tint the body pattern layer
 const OPTIONS = [
+  // Original colors
   { value: 'red',     hex: '#cc2020', label: 'Arterial red',        sub: 'It pulses faintly. You are unsurprised.',               description: 'Your markings carry the red of something vital — urgent and unmistakable.' },
   { value: 'orange',  hex: '#e06010', label: 'Rusted orange',        sub: 'Flaking paint. Something old lives here.',              description: 'Your patterns burn orange — the color of embers that outlast the fire.' },
   { value: 'yellow',  hex: '#d4b800', label: 'Caution yellow',       sub: 'Bright. Unavoidable. Unapologetic.',                    description: 'Your markings are the yellow of warning signs — bright enough to be impossible to ignore.' },
@@ -20,6 +21,18 @@ const OPTIONS = [
   { value: 'magenta', hex: '#b8008a', label: 'Inexplicable magenta', sub: 'No reason for it. It simply is.',                       description: 'Your markings are magenta — a color that should not exist and yet insists on it.' },
   { value: 'grey',    hex: '#788080', label: 'Weathered grey',       sub: 'It has seen things. It is not telling.',                description: 'Your patterns are grey — the color of things that have watched everything and kept their own counsel.' },
   { value: 'gold',    hex: '#c9a84c', label: 'Tarnished gold',       sub: 'Worth more than it looks. You can tell.',               description: 'Your markings carry old gold — not flashy, but the kind that survives centuries.' },
+  
+  // NEW COLORS (+10)
+  { value: 'blood',   hex: '#8b0000', label: 'Dried blood',          sub: 'Old. Dark. It has a story it will not tell.',           description: 'Your patterns are the deep red of dried blood — ancient, powerful, and utterly without apology.' },
+  { value: 'ember',   hex: '#ff4500', label: 'Live ember',           sub: 'Still glowing. Still dangerous.',                       description: 'Your markings glow like embers — not quite flame, but still hot enough to burn.' },
+  { value: 'honey',   hex: '#daa520', label: 'Wild honey',           sub: 'Golden and slow. Worth the sting.',                     description: 'Your patterns shimmer like honey — sweet, golden, and guarded by something fierce.' },
+  { value: 'fern',    hex: '#4f7942', label: 'Deep fern',            sub: 'The color of things that grow in shadow.',              description: 'Your markings are fern-green — the color of undergrowth where secrets hide and thrive.' },
+  { value: 'indigo',  hex: '#4b0082', label: 'Midnight indigo',      sub: 'The hour when anything is possible.',                   description: 'Your patterns are indigo — the color between day and dream, where rules bend.' },
+  { value: 'plum',    hex: '#8e4585', label: 'Bruised plum',         sub: 'Sweetness hiding damage. You understand.',              description: 'Your markings are plum-purple — soft on the outside, with something darker at the core.' },
+  { value: 'blush',   hex: '#ff6b6b', label: 'Embarrassed blush',    sub: 'You are seen. You are not hiding.',                     description: 'Your patterns blush pink — the color of someone who feels things openly and without shame.' },
+  { value: 'charcoal',hex: '#36454f', label: 'Warm charcoal',        sub: 'Dark, but not cold. There is heat here.',               description: 'Your markings are charcoal — dark and understated, with hidden warmth.' },
+  { value: 'bone',    hex: '#e3dac9', label: 'Old bone',             sub: 'Pale. Patient. Waiting for the right moment.',          description: 'Your patterns are bone-white — patient, ancient, and full of stories.' },
+  { value: 'aqua',    hex: '#00ffff', label: 'Electric aqua',        sub: 'Too bright to ignore. Too strange to forget.',          description: 'Your markings blaze aqua — the color of tropical shallows and impossible futures.' },
 ];
 
 export function render(container, onAnswer) {
@@ -64,14 +77,32 @@ export function render(container, onAnswer) {
     btn.addEventListener('click', () => {
       list.querySelectorAll('.pcolor-card').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
+      
+      // Extensive console logging
+      console.log(`🚪 [q6_pattern_color.js] Answer selected:`);
+      console.log(`   └─ Option index: ${i}`);
+      console.log(`   └─ Value: ${opt.value}`);
+      console.log(`   └─ Label: "${opt.label}"`);
+      console.log(`   └─ Sub: "${opt.sub}"`);
+      console.log(`   └─ Hex: ${opt.hex}`);
+      console.log(`   └─ Description: "${opt.description}"`);
+      console.log(`📤 [q6_pattern_color.js] Payload being saved:`, {
+        patternColorValue: opt.value,
+        patternColorHex: opt.hex,
+        description: opt.description,
+      });
+      
       setTimeout(() => onAnswer({
         patternColorValue: opt.value,
         patternColorHex:   opt.hex,
         description:       opt.description,
       }), 160);
+      
+      console.log(`✅ [q6_pattern_color.js] Answer saved for question: patternColor`);
     });
     list.appendChild(btn);
   });
 
   container.appendChild(list);
+  console.log(`🚪 [q6_pattern_color.js] Rendered ${OPTIONS.length} pattern color options`);
 }

@@ -6,6 +6,7 @@ export const meta = {
 };
 
 const OPTIONS = [
+  // Original eye styles
   {
     value: 'passionate',   style: 'pink_purple_swirl',
     label: 'That you\'re joking',
@@ -53,6 +54,68 @@ const OPTIONS = [
     label: 'Nothing, actually',
     sub:   'People tend to get you right. It is refreshing and slightly suspicious.',
     description: 'Soft pink and purple hearts — your eyes are exactly as open as they look, and people love you for it.',
+  },
+  
+  // NEW EYE STYLES (+10)
+  {
+    value: 'volcanic',     style: 'molten_lava',
+    label: 'That you\'re angry',
+    sub:   'You are not angry. You are passionate. There is a difference.',
+    description: 'Molten lava swirls in your eyes — intense, hot, and easily mistaken for fury when it is really just feeling deeply.',
+  },
+  {
+    value: 'deep_rooted',  style: 'forest_green',
+    label: 'That you\'re simple',
+    sub:   'There is an entire ecosystem beneath the surface.',
+    description: 'Forest green fills your eyes — calm on the surface, with ancient roots reaching deep into the earth.',
+  },
+  {
+    value: 'distant',      style: 'storm_grey',
+    label: 'That you don\'t care',
+    sub:   'You care so much it exhausts you. You have learned to hide it.',
+    description: 'Storm-grey and turbulent — your eyes hold weather patterns that only you can read.',
+  },
+  {
+    value: 'sweet',        style: 'honey_amber',
+    label: 'That you\'re naive',
+    sub:   'Sweetness is not the same as weakness. You prove this daily.',
+    description: 'Honey-amber and warm — people mistake your kindness for naivety, but you are simply choosing to be gentle.',
+  },
+  {
+    value: 'dreamer',      style: 'pale_moon',
+    label: 'That you\'re impractical',
+    sub:   'Your head is in the clouds. That is where the best ideas come from.',
+    description: 'Pale moon-white — your eyes hold dreams that others call impossible, until you make them real.',
+  },
+  {
+    value: 'mysterious',   style: 'deep_void',
+    label: 'That you\'re hiding something',
+    sub:   'You are not hiding. You are simply not performing.',
+    description: 'Deep void-black with hints of purple — your eyes hold secrets not out of malice, but because some things are not for sharing.',
+  },
+  {
+    value: 'electric',     style: 'electric_blue',
+    label: 'That you\'re unpredictable',
+    sub:   'You are predictable. You just move faster than they can track.',
+    description: 'Electric blue crackles in your eyes — bright, fast, and always several steps ahead of the conversation.',
+  },
+  {
+    value: 'seasonal',     style: 'autumn_maple',
+    label: 'That you\'re inconsistent',
+    sub:   'You change with the seasons. That is not inconsistency — that is nature.',
+    description: 'Autumn maple-red and gold — your eyes shift with the turning year, beautiful in every phase.',
+  },
+  {
+    value: 'cold_fish',    style: 'winter_frost',
+    label: 'That you\'re unfeeling',
+    sub:   'You feel everything. You have simply learned not to show it.',
+    description: 'Winter frost-blue — cold to the touch, but holding the promise of spring beneath the ice.',
+  },
+  {
+    value: 'dramatic',     style: 'sunrise_orange',
+    label: 'That you\'re overreacting',
+    sub:   'You are reacting exactly the right amount. They are underreacting.',
+    description: 'Sunrise orange and pink — your eyes blaze with the intensity of a new day, unapologetically bright.',
   },
 ];
 
@@ -172,6 +235,90 @@ function drawEyePreview(canvas, style) {
       });
       break;
     }
+    // NEW PREVIEW STYLES
+    case 'molten_lava': {
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      g.addColorStop(0,'#ff6600'); g.addColorStop(0.5,'#cc3300'); g.addColorStop(1,'#660000');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle='rgba(255,100,0,0.7)'; ctx.lineWidth=2;
+      for(let i=0;i<3;i++){
+        ctx.beginPath();
+        for(let a=0;a<Math.PI*3;a+=0.1){
+          const rad=(a/(Math.PI*3))*r*0.8;
+          const px=cx+Math.cos(a+i*2)*rad, py=cy+Math.sin(a+i*2)*rad;
+          a<0.1?ctx.moveTo(px,py):ctx.lineTo(px,py);
+        }
+        ctx.stroke();
+      }
+      break;
+    }
+    case 'forest_green': {
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      g.addColorStop(0,'#44cc44'); g.addColorStop(0.5,'#228822'); g.addColorStop(1,'#0a3a0a');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      break;
+    }
+    case 'storm_grey': {
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      g.addColorStop(0,'#c0c8d0'); g.addColorStop(0.5,'#808890'); g.addColorStop(1,'#2a3038');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      break;
+    }
+    case 'honey_amber': {
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      g.addColorStop(0,'#ffcc44'); g.addColorStop(0.5,'#e8a020'); g.addColorStop(1,'#8a6010');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      break;
+    }
+    case 'pale_moon': {
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      g.addColorStop(0,'#f0f0ff'); g.addColorStop(0.5,'#c0c0e0'); g.addColorStop(1,'#606080');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      break;
+    }
+    case 'deep_void': {
+      ctx.fillStyle='#000008'; ctx.fillRect(0,0,W,H);
+      const sg=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      sg.addColorStop(0,'#1a0080'); sg.addColorStop(1,'#000008');
+      ctx.fillStyle=sg; ctx.fillRect(0,0,W,H);
+      break;
+    }
+    case 'electric_blue': {
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      g.addColorStop(0,'#00ffff'); g.addColorStop(0.5,'#0080ff'); g.addColorStop(1,'#001060');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      ctx.fillStyle='#ffffff';
+      for(let i=0;i<5;i++){
+        ctx.beginPath();
+        ctx.arc(cx-5+Math.random()*10, cy-5+Math.random()*10, 0.8, 0, Math.PI*2);
+        ctx.fill();
+      }
+      break;
+    }
+    case 'autumn_maple': {
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      g.addColorStop(0,'#ff8040'); g.addColorStop(0.5,'#cc5020'); g.addColorStop(1,'#602010');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      break;
+    }
+    case 'winter_frost': {
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      g.addColorStop(0,'#e0f0ff'); g.addColorStop(0.5,'#90b8d8'); g.addColorStop(1,'#305070');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      ctx.fillStyle='rgba(255,255,255,0.4)';
+      for(let i=0;i<8;i++){
+        ctx.beginPath();
+        ctx.arc(cx-8+Math.random()*16, cy-8+Math.random()*16, 0.5, 0, Math.PI*2);
+        ctx.fill();
+      }
+      break;
+    }
+    case 'sunrise_orange': {
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      g.addColorStop(0,'#ffaa44'); g.addColorStop(0.5,'#ff6622'); g.addColorStop(1,'#aa2200');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      break;
+    }
   }
   ctx.restore();
   ctx.beginPath(); ctx.arc(cx,cy,r*0.35,0,Math.PI*2);
@@ -237,14 +384,32 @@ export function render(container, onAnswer) {
     btn.addEventListener('click', () => {
       list.querySelectorAll('.eye-card').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
+      
+      // Extensive console logging
+      console.log(`👁️ [q3_eye.js] Answer selected:`);
+      console.log(`   └─ Option index: ${i}`);
+      console.log(`   └─ Value: ${opt.value}`);
+      console.log(`   └─ Label: "${opt.label}"`);
+      console.log(`   └─ Sub: "${opt.sub}"`);
+      console.log(`   └─ Eye style: ${opt.style}`);
+      console.log(`   └─ Description: "${opt.description}"`);
+      console.log(`📤 [q3_eye.js] Payload being saved:`, {
+        eyeStyle: opt.style,
+        eyeStyleValue: opt.value,
+        description: opt.description,
+      });
+      
       setTimeout(() => onAnswer({
         eyeStyle:      opt.style,
         eyeStyleValue: opt.value,
         description:   opt.description,
       }), 160);
+      
+      console.log(`✅ [q3_eye.js] Answer saved for question: eye`);
     });
     list.appendChild(btn);
   });
 
   container.appendChild(list);
+  console.log(`👁️ [q3_eye.js] Rendered ${OPTIONS.length} eye style options`);
 }

@@ -822,6 +822,7 @@ Promise.all([
 
   // ── D: Eye layer — LAST thing before lineart ──────────────
   if (eyeImg) {
+    console.log("DRAWING EYEBALL")
     const EW = eyeImg.naturalWidth, EH = eyeImg.naturalHeight;
     const offEyeArt = makeOff(EW, EH);
     const ctxEyeArt = offEyeArt.getContext('2d');

@@ -121,6 +121,11 @@ const COLOR_GLOW = {
   copper:'rgba(184,115,51,0.22)',  rose:'rgba(192,80,128,0.22)',
   teal:'rgba(42,157,143,0.22)',    silver:'rgba(154,176,192,0.22)',
   ochre:'rgba(200,134,10,0.22)',
+  scarlet:'rgba(220,20,40,0.22)', mahogany:'rgba(128,64,32,0.22)',
+  jade:'rgba(0,168,84,0.22)', sapphire:'rgba(15,82,186,0.22)',
+  lavender:'rgba(181,126,220,0.22)', obsidian:'rgba(20,20,25,0.22)',
+  pearl:'rgba(240,235,225,0.18)', brass:'rgba(181,151,64,0.22)',
+  rust:'rgba(155,55,25,0.22)', glacier:'rgba(100,180,200,0.22)',
 };
 
 // ══════════════════════════════════════════════════════════════
@@ -180,7 +185,8 @@ function flatRecolor(imageData, hex) {
 }
 
 // ══════════════════════════════════════════════════════════════
-//  LINEART RECOLOR
+//  LINEART RECOLOR — MUCH MORE SATURATED AND DARKER
+//  Boost saturation by +0.65 (was +0.4), crush value by -0.70 (was -0.55)
 // ══════════════════════════════════════════════════════════════
 function recolorLineartFromBase(lineData, baseData) {
   const ld = lineData.data;
@@ -191,8 +197,10 @@ function recolorLineartFromBase(lineData, baseData) {
       ld[i]=0; ld[i+1]=0; ld[i+2]=0;
     } else {
       const [h, s, v] = rgbToHsv(bd[i], bd[i+1], bd[i+2]);
-      const ns = Math.min(s + 0.4, 1.0);
-      const nv = Math.max(v - 0.55, 0.0);
+      // MUCH more saturated: +0.65 instead of +0.4
+      const ns = Math.min(s + 0.65, 1.0);
+      // MUCH darker: -0.70 instead of -0.55
+      const nv = Math.max(v - 0.70, 0.05);
       const [nr, ng, nb] = hsvToRgb(h, ns, nv);
       ld[i]=nr; ld[i+1]=ng; ld[i+2]=nb;
     }
@@ -204,6 +212,7 @@ function recolorLineartFromBase(lineData, baseData) {
 //  EYE LAYER
 // ══════════════════════════════════════════════════════════════
 function drawEyeLayer(ctx, W, H, style, rng) {
+  console.log(`🎨 drawEyeLayer called: style=${style}, dimensions=${W}x${H}`);
   const cx=W/2, cy=H/2, r=Math.min(W,H)*0.48;
   ctx.clearRect(0,0,W,H);
   ctx.save();
@@ -326,8 +335,89 @@ function drawEyeLayer(ctx, W, H, style, rng) {
       });
       break;
     }
+    // NEW EYE STYLES
+    case 'molten_lava': {
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      g.addColorStop(0,'#ff4400'); g.addColorStop(0.5,'#ff2200'); g.addColorStop(1,'#880000');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle='rgba(255,100,0,0.7)'; ctx.lineWidth=Math.max(2,W*0.018);
+      for(let i=0;i<6;i++) spiral(i*1.05, true);
+      break;
+    }
+    case 'forest_green': {
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      g.addColorStop(0,'#40cc40'); g.addColorStop(0.5,'#208820'); g.addColorStop(1,'#0a3a0a');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle='rgba(100,255,100,0.4)'; ctx.lineWidth=Math.max(2,W*0.012);
+      for(let i=0;i<4;i++) spiral(i*1.57, false);
+      break;
+    }
+    case 'storm_grey': {
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      g.addColorStop(0,'#c0c8d0'); g.addColorStop(0.5,'#708090'); g.addColorStop(1,'#2a3038');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle='rgba(255,255,255,0.35)'; ctx.lineWidth=Math.max(1.5,W*0.01);
+      for(let i=0;i<8;i++) spiral(i*0.78, true);
+      break;
+    }
+    case 'honey_amber': {
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      g.addColorStop(0,'#ffcc44'); g.addColorStop(0.5,'#e8a020'); g.addColorStop(1,'#8a6010');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle='rgba(255,220,100,0.6)'; ctx.lineWidth=Math.max(2,W*0.014);
+      for(let i=0;i<5;i++) spiral(i*1.26, false);
+      break;
+    }
+    case 'pale_moon': {
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      g.addColorStop(0,'#f0f0ff'); g.addColorStop(0.5,'#c0c0e0'); g.addColorStop(1,'#606080');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle='rgba(200,200,255,0.3)'; ctx.lineWidth=Math.max(1.5,W*0.01);
+      for(let i=0;i=4;i++) spiral(i*1.26, true);
+      break;
+    }
+    case 'deep_void': {
+      ctx.fillStyle='#000008'; ctx.fillRect(0,0,W,H);
+      const sg=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      sg.addColorStop(0,'#1a0080'); sg.addColorStop(0.5,'#0a0040'); sg.addColorStop(1,'#000008');
+      ctx.fillStyle=sg; ctx.fillRect(0,0,W,H);
+      break;
+    }
+    case 'electric_blue': {
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      g.addColorStop(0,'#00ffff'); g.addColorStop(0.4,'#0080ff'); g.addColorStop(1,'#001060');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle='rgba(0,255,255,0.7)'; ctx.lineWidth=Math.max(2,W*0.016);
+      for(let i=0;i<6;i++) spiral(i*1.26, true);
+      break;
+    }
+    case 'autumn_maple': {
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      g.addColorStop(0,'#ff8040'); g.addColorStop(0.4,'#cc5020'); g.addColorStop(1,'#602010');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle='rgba(255,160,80,0.5)'; ctx.lineWidth=Math.max(2,W*0.013);
+      for(let i=0;i<5;i++) spiral(i*1.26, false);
+      break;
+    }
+    case 'winter_frost': {
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      g.addColorStop(0,'#e0f0ff'); g.addColorStop(0.5,'#90b8d8'); g.addColorStop(1,'#305070');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=Math.max(1.5,W*0.012);
+      for(let i=0;i<6;i++) spiral(i*1.26, true);
+      break;
+    }
+    case 'sunrise_orange': {
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      g.addColorStop(0,'#ffaa44'); g.addColorStop(0.4,'#ff6622'); g.addColorStop(1,'#aa2200');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle='rgba(255,200,100,0.6)'; ctx.lineWidth=Math.max(2,W*0.015);
+      for(let i=0;i<5;i++) spiral(i*1.26, false);
+      break;
+    }
   }
   ctx.restore();
+  console.log(`✅ Eye layer drawn with style: ${style}`);
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -751,6 +841,15 @@ const patternType  = answers.patternType || 'blobs';
 const seedMod      = typeof answers.seedMod === 'number' ? answers.seedMod : 0;
 const descriptions = Array.isArray(answers.descriptions) ? answers.descriptions : [];
 
+console.log('🐉 === DRAGON GENERATION START ===');
+console.log('📦 Answers payload:', answers);
+console.log('🐲 Dragon key:', dragonKey);
+console.log('🎨 Base color:', colorKey, colorHex);
+console.log('👁️ Eye style:', eyeStyle);
+console.log('🔲 Pattern type:', patternType);
+console.log('🔢 Seed modifier:', seedMod);
+console.log('📝 Descriptions:', descriptions);
+
 // Pattern color: from q6 if available, otherwise derive a contrasting color
 const patternColorHex = answers.patternColorHex || (() => {
   // Fallback: shift the base color hue by ~120° for contrast
@@ -758,8 +857,11 @@ const patternColorHex = answers.patternColorHex || (() => {
   const [h, s, v] = rgbToHsv(r, g, b);
   const newH = (h + 0.33) % 1.0;
   const [nr, ng, nb] = hsvToRgb(newH, Math.min(s * 1.2, 1.0), Math.min(v * 1.1, 1.0));
-  return '#' + [nr, ng, nb].map(x => x.toString(16).padStart(2, '0')).join('');
+  const fallbackHex = '#' + [nr, ng, nb].map(x => x.toString(16).padStart(2, '0')).join('');
+  console.log('🎨 No patternColorHex in answers, using fallback:', fallbackHex);
+  return fallbackHex;
 })();
+console.log('🎨 Pattern color hex:', patternColorHex);
 
 const info = DRAGON_INFO[dragonKey] || { name: dragonKey, subtitle: 'Of Ancient Lineage' };
 
@@ -782,11 +884,18 @@ if (descriptions.length === 0) descEl.style.display = 'none';
 // ── Independent seeds ─────────────────────────────────────────
 const eyeSeed     = (strHash(dragonKey) ^ strHash(eyeStyle)  ^ 0xcafe1234) >>> 0;
 const patternSeed = (strHash(dragonKey) ^ strHash(colorKey)  ^ (seedMod * 0x9e3779b9)) >>> 0;
+console.log('🌱 Eye seed:', eyeSeed);
+console.log('🌱 Pattern seed:', patternSeed);
 
 // ── Load images ───────────────────────────────────────────────
 const clippingPath = `base/clipping/${dragonKey}.png`;
 const linesPath    = `base/lines/${dragonKey}.png`;
 const eyePath      = `base/extra/EYEBALL.png`;
+
+console.log('📁 Loading images:');
+console.log('   Clipping:', clippingPath);
+console.log('   Lines:', linesPath);
+console.log('   Eye overlay:', eyePath);
 
 const canvas = document.getElementById('output-canvas');
 const ctx    = canvas.getContext('2d');
@@ -794,13 +903,15 @@ const ctx    = canvas.getContext('2d');
 Promise.all([
   loadImage(clippingPath),
   loadImage(linesPath),
-  loadImage(eyePath).catch(() => null),
+  loadImage(eyePath).catch(() => { console.warn('⚠️ EYEBALL.png not found — eye layer will be drawn without mask'); return null; }),
 ]).then(([clippingImg, linesImg, eyeImg]) => {
   const W = Math.max(clippingImg.naturalWidth,  linesImg.naturalWidth);
   const H = Math.max(clippingImg.naturalHeight, linesImg.naturalHeight);
   canvas.width=W; canvas.height=H;
+  console.log(`📐 Canvas dimensions: ${W}x${H}`);
 
   // ── A: Base — clipping flat-recolored ─────────────────────
+  console.log('🎨 Step A: Drawing base layer...');
   const offBase = makeOff(W,H), ctxBase = offBase.getContext('2d');
   ctxBase.drawImage(clippingImg, 0, 0);
   const baseData = ctxBase.getImageData(0,0,W,H);
@@ -808,6 +919,7 @@ Promise.all([
   ctxBase.putImageData(baseData, 0, 0);
 
   // ── B: Body pattern — colored, masked to clipping shape ───
+  console.log(`🎨 Step B: Drawing body pattern (${patternType})...`);
   const offPat = makeOff(W,H), ctxPat = offPat.getContext('2d');
   const patRng = mulberry32(patternSeed);
   (PATTERN_FNS[patternType] || patternBlobs)(ctxPat, W, H, patRng, seedMod, patternColorHex);
@@ -816,27 +928,38 @@ Promise.all([
   ctxPat.globalCompositeOperation = 'source-over';
 
   // ── C: Composite base + pattern → "beneath" canvas ───────
+  console.log('🎨 Step C: Compositing base + pattern...');
   const offBeneath = makeOff(W,H), ctxBeneath = offBeneath.getContext('2d');
   ctxBeneath.drawImage(offBase, 0, 0);
   ctxBeneath.drawImage(offPat,  0, 0);
 
-  // ── D: Eye layer — LAST thing before lineart ──────────────
+  // ── D: Eye layer — ALWAYS draw, with or without mask ──────
+  console.log(`🎨 Step D: Drawing eye layer (style: ${eyeStyle})...`);
+  const EW = W, EH = H;  // Use full canvas dimensions
+  const offEyeArt = makeOff(EW, EH);
+  const ctxEyeArt = offEyeArt.getContext('2d');
+  
+  // Draw the eye pattern
+  drawEyeLayer(ctxEyeArt, EW, EH, eyeStyle, mulberry32(eyeSeed));
+  
+  // If we have an eye mask image, apply it as clipping mask
   if (eyeImg) {
-    console.log("DRAWING EYEBALL")
-    const EW = eyeImg.naturalWidth, EH = eyeImg.naturalHeight;
-    const offEyeArt = makeOff(EW, EH);
-    const ctxEyeArt = offEyeArt.getContext('2d');
-    drawEyeLayer(ctxEyeArt, EW, EH, eyeStyle, mulberry32(eyeSeed));
+    console.log('   Applying EYEBALL.png mask...');
     ctxEyeArt.globalCompositeOperation = 'destination-in';
-    ctxEyeArt.drawImage(eyeImg, 0, 0);
+    ctxEyeArt.drawImage(eyeImg, 0, 0, EW, EH);
     ctxEyeArt.globalCompositeOperation = 'source-over';
-    const ex = 0, ey = 0;
-    ctxBeneath.drawImage(offEyeArt, ex, ey);
+  } else {
+    console.log('   No EYEBALL.png mask — drawing eye pattern unmasked');
   }
+  
+  // Composite the eye onto the beneath canvas
+  ctxBeneath.drawImage(offEyeArt, 0, 0);
+  console.log('✅ Eye layer composited');
 
   const beneathData = ctxBeneath.getImageData(0,0,W,H);
 
   // ── E: Lineart — recolored by sampling beneathData ────────
+  console.log('🎨 Step E: Recoloring lineart (MUCH more saturated + darker)...');
   const offLine = makeOff(W,H), ctxLine = offLine.getContext('2d');
   ctxLine.drawImage(linesImg, 0, 0);
   const lineData = ctxLine.getImageData(0,0,W,H);
@@ -844,18 +967,20 @@ Promise.all([
   ctxLine.putImageData(lineData, 0, 0);
 
   // ── FINAL: draw all layers onto output canvas ─────────────
+  console.log('🎨 Step F: Final compositing...');
   ctx.clearRect(0,0,W,H);
   ctx.drawImage(offBeneath, 0, 0);
   ctx.globalAlpha = 0.82;
   ctx.drawImage(offLine, 0, 0);
   ctx.globalAlpha = 1.0;
 
+  console.log('✅ Dragon generation complete!');
   document.getElementById('loading-msg').style.display='none';
   canvas.style.display='block';
   document.getElementById('download-btn').style.display='inline-block';
 
 }).catch(err=>{
-  console.error(err);
+  console.error('❌ ERROR in dragon generation:', err);
   showError(`Couldn't load dragon files.<br><small style="opacity:0.5">${err.message}</small>`);
 });
 
@@ -865,10 +990,12 @@ document.getElementById('download-btn').addEventListener('click', ()=>{
   a.download=`${dragonKey}_${colorKey}_${patternType}.png`;
   a.href=canvas.toDataURL('image/png');
   a.click();
+  console.log('📸 PNG downloaded');
 });
 
 // ── Retake ────────────────────────────────────────────────────
 document.getElementById('retake-btn').addEventListener('click', ()=>{
+  console.log('🔄 Retaking quiz — clearing cookies and redirecting...');
   deleteCookie('quiz_dragon_person_01_answers');
   deleteCookie('quiz_dragon_person_01_done');
   window.location.href='index.html';

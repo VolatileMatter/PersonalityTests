@@ -50,14 +50,32 @@ export function render(container, onAnswer) {
     btn.addEventListener('click', () => {
       list.querySelectorAll('.personality-card').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
+      
+      // Extensive console logging
+      console.log(`🧠 [q5_personality.js] Answer selected:`);
+      console.log(`   └─ Option index: ${i}`);
+      console.log(`   └─ Value: ${opt.value}`);
+      console.log(`   └─ Label: "${opt.label}"`);
+      console.log(`   └─ Sub: "${opt.sub || '(none)'}"`);
+      console.log(`   └─ Seed modifier: ${opt.seedMod}`);
+      console.log(`   └─ Description: "${opt.description}"`);
+      console.log(`📤 [q5_personality.js] Payload being saved:`, {
+        personality: opt.value,
+        seedMod: opt.seedMod,
+        description: opt.description,
+      });
+      
       setTimeout(() => onAnswer({
         personality: opt.value,
         seedMod:     opt.seedMod,
         description: opt.description,
       }), 160);
+      
+      console.log(`✅ [q5_personality.js] Answer saved for question: personality`);
     });
     list.appendChild(btn);
   });
 
   container.appendChild(list);
+  console.log(`🧠 [q5_personality.js] Rendered ${OPTIONS.length} personality options`);
 }

@@ -60,7 +60,7 @@ export function render(container, onAnswer) {
   const grid = document.createElement('div');
   grid.className = 'loc-grid';
 
-  OPTIONS.forEach(opt => {
+  OPTIONS.forEach((opt, i) => {
     const btn = document.createElement('button');
     btn.className = 'choice-card loc-card';
     btn.innerHTML = `
@@ -71,13 +71,30 @@ export function render(container, onAnswer) {
     btn.addEventListener('click', () => {
       grid.querySelectorAll('.loc-card').forEach(c => c.classList.remove('selected'));
       btn.classList.add('selected');
+      
+      // Extensive console logging
+      console.log(`📍 [q1_location.js] Answer selected:`);
+      console.log(`   └─ Option index: ${i}`);
+      console.log(`   └─ File: ${opt.file}`);
+      console.log(`   └─ Label: "${opt.label}"`);
+      console.log(`   └─ Sub: "${opt.sub}"`);
+      console.log(`   └─ Emoji: ${opt.emoji}`);
+      console.log(`   └─ Description: "${opt.description}"`);
+      console.log(`📤 [q1_location.js] Payload being saved:`, {
+        dragon: opt.file,
+        description: opt.description,
+      });
+      
       setTimeout(() => onAnswer({
         dragon:      opt.file,
         description: opt.description,
       }), 160);
+      
+      console.log(`✅ [q1_location.js] Answer saved for question: location`);
     });
     grid.appendChild(btn);
   });
 
   container.appendChild(grid);
+  console.log(`📍 [q1_location.js] Rendered ${OPTIONS.length} location options`);
 }

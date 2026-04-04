@@ -51,14 +51,32 @@ export function render(container, onAnswer) {
     btn.addEventListener('click', () => {
       list.querySelectorAll('.activity-card').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
+      
+      // Extensive console logging
+      console.log(`🏃 [q4_activity.js] Answer selected:`);
+      console.log(`   └─ Option index: ${i}`);
+      console.log(`   └─ Value: ${opt.value}`);
+      console.log(`   └─ Label: "${opt.label}"`);
+      console.log(`   └─ Sub: "${opt.sub}"`);
+      console.log(`   └─ Pattern type: ${opt.patternType}`);
+      console.log(`   └─ Description: "${opt.description}"`);
+      console.log(`📤 [q4_activity.js] Payload being saved:`, {
+        activity: opt.value,
+        patternType: opt.patternType,
+        description: opt.description,
+      });
+      
       setTimeout(() => onAnswer({
         activity:    opt.value,
         patternType: opt.patternType,
         description: opt.description,
       }), 160);
+      
+      console.log(`✅ [q4_activity.js] Answer saved for question: activity`);
     });
     list.appendChild(btn);
   });
 
   container.appendChild(list);
+  console.log(`🏃 [q4_activity.js] Rendered ${OPTIONS.length} activity options`);
 }

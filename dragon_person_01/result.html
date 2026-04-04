@@ -208,6 +208,97 @@ function recolorLineartFromBase(lineData, baseData) {
   return lineData;
 }
 
+// New function: draw eye pattern within specific bounds
+function drawEyeLayerWithinBounds(ctx, W, H, style, rng, bounds) {
+  console.log(`🎨 drawEyeLayerWithinBounds: style=${style}, bounds=`, bounds);
+  
+  // Clear the entire canvas first
+  ctx.clearRect(0, 0, W, H);
+  
+  // Save context state
+  ctx.save();
+  
+  // Clip to the bounds rectangle (where the eyeball lives)
+  ctx.beginPath();
+  ctx.rect(bounds.x, bounds.y, bounds.w, bounds.h);
+  ctx.clip();
+  
+  // Calculate center of the bounds
+  const cx = bounds.x + bounds.w / 2;
+  const cy = bounds.y + bounds.h / 2;
+  const r = Math.min(bounds.w, bounds.h) / 2;
+  
+  // Now draw the pattern scaled/translated to fit the bounds
+  // (Same drawing code as drawEyeLayer but using cx, cy, r from bounds)
+  
+  function spiral(offsetAngle, jitter) {
+    ctx.beginPath();
+    let first = true;
+    for (let a = 0.01; a < Math.PI * 6; a += 0.05) {
+      const rad = (a / (Math.PI * 6)) * r * 0.95;
+      const jx = jitter ? (rng() - 0.5) * rad * 0.15 : 0;
+      const jy = jitter ? (rng() - 0.5) * rad * 0.15 : 0;
+      const px = cx + Math.cos(a + offsetAngle) * rad + jx;
+      const py = cy + Math.sin(a + offsetAngle) * rad + jy;
+      first ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      first = false;
+    }
+    ctx.stroke();
+  }
+  
+  // Pattern drawing (same as original drawEyeLayer but using cx, cy, r)
+  switch(style) {
+    case 'pink_purple_swirl': {
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      g.addColorStop(0, '#ff80c0'); g.addColorStop(0.5, '#c050c0'); g.addColorStop(1, '#5010a0');
+      ctx.fillStyle = g; ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+      ctx.strokeStyle = 'rgba(255,200,255,0.45)'; ctx.lineWidth = Math.max(2, r * 0.03);
+      for (let i = 0; i < 5; i++) spiral(i * 1.26, true);
+      break;
+    }
+    case 'gold_white_swirl': {
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      g.addColorStop(0, '#fffce0'); g.addColorStop(0.4, '#e8c060'); g.addColorStop(1, '#7a5010');
+      ctx.fillStyle = g; ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+      ctx.strokeStyle = 'rgba(255,255,230,0.55)'; ctx.lineWidth = Math.max(2, r * 0.03);
+      for (let i = 0; i < 5; i++) spiral(i * 1.26, false);
+      break;
+    }
+    case 'rainbow_swirl': {
+      for (let i = 0; i < 360; i += 2) {
+        ctx.beginPath(); ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, r, i * Math.PI / 180, (i + 2) * Math.PI / 180); ctx.closePath();
+        ctx.fillStyle = `hsl(${i}, 100%, 55%)`; ctx.fill();
+      }
+      ctx.strokeStyle = 'rgba(255,255,255,0.38)'; ctx.lineWidth = Math.max(1.5, r * 0.025);
+      for (let i = 0; i < 4; i++) {
+        ctx.beginPath();
+        let first = true;
+        for (let a = 0.01; a < Math.PI * 4; a += 0.05) {
+          const rad = (a / (Math.PI * 4)) * r * 0.9;
+          const px = cx + Math.cos(a + i * 1.57) * rad;
+          const py = cy + Math.sin(a + i * 1.57) * rad;
+          first ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+          first = false;
+        }
+        ctx.stroke();
+      }
+      break;
+    }
+    // Add other eye styles here following the same pattern...
+    default: {
+      // Fallback to simple radial gradient
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      g.addColorStop(0, '#ff80c0'); g.addColorStop(1, '#5010a0');
+      ctx.fillStyle = g; ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+      break;
+    }
+  }
+  
+  ctx.restore();
+  console.log(`✅ Eye pattern drawn within bounds`);
+}
+
 // ══════════════════════════════════════════════════════════════
 //  EYE LAYER
 // ══════════════════════════════════════════════════════════════
@@ -933,79 +1024,77 @@ Promise.all([
   ctxBeneath.drawImage(offBase, 0, 0);
   ctxBeneath.drawImage(offPat,  0, 0);
 
-// ── D: Eye layer — recolor only the non-transparent parts of EYEBALL.png ──
+// ── D: Eye layer — generate pattern only within eyeball bounds ──
 console.log(`🎨 Step D: Drawing eye layer (style: ${eyeStyle})...`);
-const EW = W, EH = H;
-const offEyeArt = makeOff(EW, EH);
-const ctxEyeArt = offEyeArt.getContext('2d');
 
-// Draw the eye pattern FIRST (the colorful swirls)
-drawEyeLayer(ctxEyeArt, EW, EH, eyeStyle, mulberry32(eyeSeed));
+// First, analyze EYEBALL.png to find its bounds (where non-transparent pixels are)
+let eyeBounds = { x: 0, y: 0, w: W, h: H };
+let hasEyeImg = false;
 
-// If we have an eyeball mask image, recolor it and composite on top
 if (eyeImg) {
-  console.log('   Processing EYEBALL.png - finding non-transparent pixels...');
+  console.log('   Analyzing EYEBALL.png to find non-transparent bounds...');
   
-  // Create a temporary canvas for the eyeball mask
-  const offEyeMask = makeOff(EW, EH);
-  const ctxEyeMask = offEyeMask.getContext('2d');
-  ctxEyeMask.drawImage(eyeImg, 0, 0, EW, EH);
+  // Create temp canvas to analyze the mask
+  const boundsCanvas = makeOff(W, H);
+  const boundsCtx = boundsCanvas.getContext('2d');
+  boundsCtx.drawImage(eyeImg, 0, 0, W, H);
+  const boundsData = boundsCtx.getImageData(0, 0, W, H);
+  const pixels = boundsData.data;
   
-  // Get the mask pixel data
-  const maskData = ctxEyeMask.getImageData(0, 0, EW, EH);
-  const pixels = maskData.data;
+  // Find min/max x,y where alpha > 50
+  let minX = W, minY = H, maxX = 0, maxY = 0;
+  let foundPixels = 0;
   
-  // Get the target eye color based on eyeStyle
-  let eyeColorR, eyeColorG, eyeColorB;
-  switch(eyeStyle) {
-    case 'pink_purple_swirl': eyeColorR = 255; eyeColorG = 128; eyeColorB = 192; break;
-    case 'gold_white_swirl': eyeColorR = 201; eyeColorG = 168; eyeColorB = 76; break;
-    case 'green_gold_split': eyeColorR = 26; eyeColorG = 154; eyeColorB = 64; break;
-    case 'purple_blue_blob': eyeColorR = 96; eyeColorG = 48; eyeColorB = 176; break;
-    case 'rainbow_swirl': eyeColorR = 255; eyeColorG = 100; eyeColorB = 100; break;
-    case 'cyan_blue_space': eyeColorR = 0; eyeColorG = 180; eyeColorB = 200; break;
-    case 'black_purple_stripes': eyeColorR = 80; eyeColorG = 20; eyeColorB = 120; break;
-    case 'pink_purple_hearts': eyeColorR = 220; eyeColorG = 80; eyeColorB = 140; break;
-    case 'molten_lava': eyeColorR = 255; eyeColorG = 68; eyeColorB = 0; break;
-    case 'forest_green': eyeColorR = 64; eyeColorG = 200; eyeColorB = 64; break;
-    case 'storm_grey': eyeColorR = 128; eyeColorG = 136; eyeColorB = 144; break;
-    case 'honey_amber': eyeColorR = 232; eyeColorG = 160; eyeColorB = 32; break;
-    case 'pale_moon': eyeColorR = 240; eyeColorG = 240; eyeColorB = 255; break;
-    case 'deep_void': eyeColorR = 26; eyeColorG = 0; eyeColorB = 128; break;
-    case 'electric_blue': eyeColorR = 0; eyeColorG = 255; eyeColorB = 255; break;
-    case 'autumn_maple': eyeColorR = 255; eyeColorG = 128; eyeColorB = 64; break;
-    case 'winter_frost': eyeColorR = 144; eyeColorG = 184; eyeColorB = 216; break;
-    case 'sunrise_orange': eyeColorR = 255; eyeColorG = 170; eyeColorB = 68; break;
-    default: eyeColorR = 255; eyeColorG = 100; eyeColorB = 100; break;
-  }
-  
-  // Only recolor pixels that are NOT transparent (alpha > 50)
-  let coloredPixels = 0;
-  for (let i = 0; i < pixels.length; i += 4) {
-    if (pixels[i+3] > 50) {  // If pixel is visible
-      pixels[i] = eyeColorR;     // R
-      pixels[i+1] = eyeColorG;   // G
-      pixels[i+2] = eyeColorB;   // B
-      pixels[i+3] = 255;         // Make fully opaque
-      coloredPixels++;
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const idx = (y * W + x) * 4;
+      if (pixels[idx + 3] > 50) {
+        foundPixels++;
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
     }
   }
   
-  console.log(`   Recolored ${coloredPixels} non-transparent pixels in eyeball`);
-  ctxEyeMask.putImageData(maskData, 0, 0);
+  if (foundPixels > 0) {
+    eyeBounds = { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+    console.log(`   Eyeball bounds: x=${eyeBounds.x}, y=${eyeBounds.y}, w=${eyeBounds.w}, h=${eyeBounds.h}, pixels=${foundPixels}`);
+    hasEyeImg = true;
+  } else {
+    console.log('   WARNING: No non-transparent pixels found in EYEBALL.png!');
+  }
+}
+
+// Create canvas for the eye layer
+const offEyeArt = makeOff(W, H);
+const ctxEyeArt = offEyeArt.getContext('2d');
+
+// Generate the eye pattern ONLY within the eyeball bounds
+console.log(`   Generating eye pattern within bounds...`);
+drawEyeLayerWithinBounds(ctxEyeArt, W, H, eyeStyle, mulberry32(eyeSeed), eyeBounds);
+
+// If we have an eyeball mask, use it to clip the pattern exactly
+if (hasEyeImg) {
+  console.log('   Masking pattern to exact eyeball shape...');
   
-  // Composite the recolored eyeball ON TOP of the eye pattern
+  const offEyeMask = makeOff(W, H);
+  const ctxEyeMask = offEyeMask.getContext('2d');
+  ctxEyeMask.drawImage(eyeImg, 0, 0, W, H);
+  
+  // Use mask to clip the pattern (destination-in keeps pattern where mask is opaque)
+  ctxEyeArt.globalCompositeOperation = 'destination-in';
   ctxEyeArt.drawImage(offEyeMask, 0, 0);
-  console.log('   Recolored eyeball composited on top of pattern');
+  ctxEyeArt.globalCompositeOperation = 'source-over';
   
-} else {
-  console.log('   No EYEBALL.png — drawing eye pattern only');
+  console.log('   Pattern masked to eyeball shape');
 }
 
 // Composite the eye onto the beneath canvas
 ctxBeneath.drawImage(offEyeArt, 0, 0);
 console.log('✅ Eye layer composited');
-
+  
   // DEBUG: Create button to save eye layer alone for inspection
 const debugEyeBtn = document.createElement('button');
 debugEyeBtn.textContent = '🐉 DEBUG: Download Eye Layer Only';

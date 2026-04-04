@@ -208,7 +208,6 @@ function recolorLineartFromBase(lineData, baseData) {
   return lineData;
 }
 
-// New function: draw eye pattern within specific bounds
 function drawEyeLayerWithinBounds(ctx, W, H, style, rng, bounds) {
   console.log(`🎨 drawEyeLayerWithinBounds: style=${style}, bounds=`, bounds);
   
@@ -228,9 +227,6 @@ function drawEyeLayerWithinBounds(ctx, W, H, style, rng, bounds) {
   const cy = bounds.y + bounds.h / 2;
   const r = Math.min(bounds.w, bounds.h) / 2;
   
-  // Now draw the pattern scaled/translated to fit the bounds
-  // (Same drawing code as drawEyeLayer but using cx, cy, r from bounds)
-  
   function spiral(offsetAngle, jitter) {
     ctx.beginPath();
     let first = true;
@@ -246,14 +242,14 @@ function drawEyeLayerWithinBounds(ctx, W, H, style, rng, bounds) {
     ctx.stroke();
   }
   
-  // Pattern drawing (same as original drawEyeLayer but using cx, cy, r)
+  // Pattern drawing - same as original drawEyeLayer
   switch(style) {
     case 'pink_purple_swirl': {
       const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
       g.addColorStop(0, '#ff80c0'); g.addColorStop(0.5, '#c050c0'); g.addColorStop(1, '#5010a0');
       ctx.fillStyle = g; ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
       ctx.strokeStyle = 'rgba(255,200,255,0.45)'; ctx.lineWidth = Math.max(2, r * 0.03);
-      for (let i = 0; i < 5; i++) spiral(i * 1.26, true);
+      for(let i = 0; i < 5; i++) spiral(i * 1.26, true);
       break;
     }
     case 'gold_white_swirl': {
@@ -261,20 +257,36 @@ function drawEyeLayerWithinBounds(ctx, W, H, style, rng, bounds) {
       g.addColorStop(0, '#fffce0'); g.addColorStop(0.4, '#e8c060'); g.addColorStop(1, '#7a5010');
       ctx.fillStyle = g; ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
       ctx.strokeStyle = 'rgba(255,255,230,0.55)'; ctx.lineWidth = Math.max(2, r * 0.03);
-      for (let i = 0; i < 5; i++) spiral(i * 1.26, false);
+      for(let i = 0; i < 5; i++) spiral(i * 1.26, false);
+      break;
+    }
+    case 'green_gold_split': {
+      const gl = ctx.createLinearGradient(bounds.x, bounds.y, bounds.x + bounds.w, bounds.y + bounds.h);
+      gl.addColorStop(0, '#0a5020'); gl.addColorStop(0.46, '#1a9a40');
+      gl.addColorStop(0.54, '#c9a84c'); gl.addColorStop(1, '#6a4008');
+      ctx.fillStyle = gl; ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+      break;
+    }
+    case 'purple_blue_blob': {
+      ctx.fillStyle = '#050312'; ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+      [[cx - r * 0.2, cy - r * 0.15, '#4020a0'], [cx + r * 0.2, cy + r * 0.1, '#1040c0'], [cx, cy, '#5530b0']].forEach(([bx, by, c]) => {
+        const bg = ctx.createRadialGradient(bx, by, 0, bx, by, r * (0.5 + rng() * 0.3));
+        bg.addColorStop(0, c + 'dd'); bg.addColorStop(1, 'transparent');
+        ctx.fillStyle = bg; ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+      });
       break;
     }
     case 'rainbow_swirl': {
-      for (let i = 0; i < 360; i += 2) {
+      for(let i = 0; i < 360; i += 2) {
         ctx.beginPath(); ctx.moveTo(cx, cy);
         ctx.arc(cx, cy, r, i * Math.PI / 180, (i + 2) * Math.PI / 180); ctx.closePath();
         ctx.fillStyle = `hsl(${i}, 100%, 55%)`; ctx.fill();
       }
       ctx.strokeStyle = 'rgba(255,255,255,0.38)'; ctx.lineWidth = Math.max(1.5, r * 0.025);
-      for (let i = 0; i < 4; i++) {
+      for(let i = 0; i < 4; i++) {
         ctx.beginPath();
         let first = true;
-        for (let a = 0.01; a < Math.PI * 4; a += 0.05) {
+        for(let a = 0.01; a < Math.PI * 4; a += 0.05) {
           const rad = (a / (Math.PI * 4)) * r * 0.9;
           const px = cx + Math.cos(a + i * 1.57) * rad;
           const py = cy + Math.sin(a + i * 1.57) * rad;
@@ -285,9 +297,113 @@ function drawEyeLayerWithinBounds(ctx, W, H, style, rng, bounds) {
       }
       break;
     }
-    // Add other eye styles here following the same pattern...
+    case 'cyan_blue_space': {
+      ctx.fillStyle = '#000c20'; ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+      [[cx - r * 0.15, cy - r * 0.1, '#00b0c8'], [cx + r * 0.2, cy + r * 0.15, '#1030c0'], [cx - r * 0.1, cy + r * 0.2, '#0080b0']].forEach(([bx, by, c]) => {
+        const bg = ctx.createRadialGradient(bx, by, 0, bx, by, r * (0.45 + rng() * 0.25));
+        bg.addColorStop(0, c + 'cc'); bg.addColorStop(1, 'transparent');
+        ctx.fillStyle = bg; ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+      });
+      break;
+    }
+    case 'black_purple_stripes': {
+      ctx.fillStyle = '#06030f'; ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+      const sw = Math.max(4, r * 0.12); ctx.strokeStyle = '#3a0878'; ctx.lineWidth = sw * 0.6;
+      for(let i = -bounds.w; i < bounds.w * 2; i += sw * 1.6) {
+        ctx.beginPath(); ctx.moveTo(bounds.x + i, bounds.y - bounds.h * 0.1); 
+        ctx.lineTo(bounds.x + i + bounds.h * 1.2, bounds.y + bounds.h * 1.1); 
+        ctx.stroke();
+      }
+      break;
+    }
+    case 'pink_purple_hearts': {
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      g.addColorStop(0, '#ffc0d8'); g.addColorStop(1, '#c060a0');
+      ctx.fillStyle = g; ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+      break;
+    }
+    case 'molten_lava': {
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      g.addColorStop(0, '#ff4400'); g.addColorStop(0.5, '#ff2200'); g.addColorStop(1, '#880000');
+      ctx.fillStyle = g; ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+      ctx.strokeStyle = 'rgba(255,100,0,0.7)'; ctx.lineWidth = Math.max(2, r * 0.036);
+      for(let i = 0; i < 6; i++) spiral(i * 1.05, true);
+      break;
+    }
+    case 'forest_green': {
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      g.addColorStop(0, '#40cc40'); g.addColorStop(0.5, '#208820'); g.addColorStop(1, '#0a3a0a');
+      ctx.fillStyle = g; ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+      ctx.strokeStyle = 'rgba(100,255,100,0.4)'; ctx.lineWidth = Math.max(2, r * 0.024);
+      for(let i = 0; i < 4; i++) spiral(i * 1.57, false);
+      break;
+    }
+    case 'storm_grey': {
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      g.addColorStop(0, '#c0c8d0'); g.addColorStop(0.5, '#708090'); g.addColorStop(1, '#2a3038');
+      ctx.fillStyle = g; ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+      ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = Math.max(1.5, r * 0.02);
+      for(let i = 0; i < 8; i++) spiral(i * 0.78, true);
+      break;
+    }
+    case 'honey_amber': {
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      g.addColorStop(0, '#ffcc44'); g.addColorStop(0.5, '#e8a020'); g.addColorStop(1, '#8a6010');
+      ctx.fillStyle = g; ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+      ctx.strokeStyle = 'rgba(255,220,100,0.6)'; ctx.lineWidth = Math.max(2, r * 0.028);
+      for(let i = 0; i < 5; i++) spiral(i * 1.26, false);
+      break;
+    }
+    case 'pale_moon': {
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      g.addColorStop(0, '#f0f0ff'); g.addColorStop(0.5, '#c0c0e0'); g.addColorStop(1, '#606080');
+      ctx.fillStyle = g; ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+      ctx.strokeStyle = 'rgba(200,200,255,0.3)'; ctx.lineWidth = Math.max(1.5, r * 0.02);
+      for(let i = 0; i < 4; i++) spiral(i * 1.26, true);
+      break;
+    }
+    case 'deep_void': {
+      ctx.fillStyle = '#000008'; ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+      const sg = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      sg.addColorStop(0, '#1a0080'); sg.addColorStop(0.5, '#0a0040'); sg.addColorStop(1, '#000008');
+      ctx.fillStyle = sg; ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+      break;
+    }
+    case 'electric_blue': {
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      g.addColorStop(0, '#00ffff'); g.addColorStop(0.4, '#0080ff'); g.addColorStop(1, '#001060');
+      ctx.fillStyle = g; ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+      ctx.strokeStyle = 'rgba(0,255,255,0.7)'; ctx.lineWidth = Math.max(2, r * 0.032);
+      for(let i = 0; i < 6; i++) spiral(i * 1.26, true);
+      break;
+    }
+    case 'autumn_maple': {
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      g.addColorStop(0, '#ff8040'); g.addColorStop(0.4, '#cc5020'); g.addColorStop(1, '#602010');
+      ctx.fillStyle = g; ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+      ctx.strokeStyle = 'rgba(255,160,80,0.5)'; ctx.lineWidth = Math.max(2, r * 0.026);
+      for(let i = 0; i < 5; i++) spiral(i * 1.26, false);
+      break;
+    }
+    case 'winter_frost': {
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      g.addColorStop(0, '#e0f0ff'); g.addColorStop(0.5, '#90b8d8'); g.addColorStop(1, '#305070');
+      ctx.fillStyle = g; ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+      ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = Math.max(1.5, r * 0.024);
+      for(let i = 0; i < 6; i++) spiral(i * 1.26, true);
+      break;
+    }
+    case 'sunrise_orange': {
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      g.addColorStop(0, '#ffaa44'); g.addColorStop(0.4, '#ff6622'); g.addColorStop(1, '#aa2200');
+      ctx.fillStyle = g; ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+      ctx.strokeStyle = 'rgba(255,200,100,0.6)'; ctx.lineWidth = Math.max(2, r * 0.03);
+      for(let i = 0; i < 5; i++) spiral(i * 1.26, false);
+      break;
+    }
     default: {
-      // Fallback to simple radial gradient
+      // Fallback to match the eyeStyle that was requested but not implemented
+      console.log(`⚠️ Unknown eye style: ${style}, using rainbow_swirl as fallback`);
       const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
       g.addColorStop(0, '#ff80c0'); g.addColorStop(1, '#5010a0');
       ctx.fillStyle = g; ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
@@ -296,7 +412,7 @@ function drawEyeLayerWithinBounds(ctx, W, H, style, rng, bounds) {
   }
   
   ctx.restore();
-  console.log(`✅ Eye pattern drawn within bounds`);
+  console.log(`✅ Eye pattern drawn with style: ${style}`);
 }
 
 // ══════════════════════════════════════════════════════════════

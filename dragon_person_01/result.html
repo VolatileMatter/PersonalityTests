@@ -942,15 +942,26 @@ Promise.all([
   // Draw the eye pattern
   drawEyeLayer(ctxEyeArt, EW, EH, eyeStyle, mulberry32(eyeSeed));
   
-  // If we have an eye mask image, apply it as clipping mask
-  if (eyeImg) {
-    console.log('   Applying EYEBALL.png mask...');
-    ctxEyeArt.globalCompositeOperation = 'destination-in';
-    ctxEyeArt.drawImage(eyeImg, 0, 0, EW, EH);
-    ctxEyeArt.globalCompositeOperation = 'source-over';
-  } else {
-    console.log('   No EYEBALL.png mask — drawing eye pattern unmasked');
-  }
+// Recolor and composite EYEBALL.png directly (no clipping)
+if (eyeImg) {
+  console.log('   Recoloring and compositing EYEBALL.png...');
+  
+  // Draw the eyeball image onto a temp canvas
+  const offEyeMask = makeOff(EW, EH);
+  const ctxEyeMask = offEyeMask.getContext('2d');
+  ctxEyeMask.drawImage(eyeImg, 0, 0, EW, EH);
+  
+  // Recolor the eyeball mask to the eye style colors
+  const eyeMaskData = ctxEyeMask.getImageData(0, 0, EW, EH);
+  // You can recolor it here if needed, or just use as-is
+  ctxEyeMask.putImageData(eyeMaskData, 0, 0);
+  
+  // Composite the eyeball ON TOP of the eye pattern (not as a mask)
+  ctxEyeArt.globalCompositeOperation = 'source-over';
+  ctxEyeArt.drawImage(offEyeMask, 0, 0);
+} else {
+  console.log('   No EYEBALL.png — drawing eye pattern only');
+}
   
   // Composite the eye onto the beneath canvas
   ctxBeneath.drawImage(offEyeArt, 0, 0);

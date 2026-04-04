@@ -983,19 +983,20 @@ const clippingPath = `base/clipping/${dragonKey}.png`;
 const linesPath    = `base/lines/${dragonKey}.png`;
 const eyePath      = `base/extra/EYEBALL.png`;
 
+const eyeLinesPath = `base/extra/EYEBALL_lines.png`;
+
 console.log('📁 Loading images:');
 console.log('   Clipping:', clippingPath);
 console.log('   Lines:', linesPath);
 console.log('   Eye overlay:', eyePath);
-
-const canvas = document.getElementById('output-canvas');
-const ctx    = canvas.getContext('2d');
+console.log('   Eye pupil:', eyeLinesPath);
 
 Promise.all([
   loadImage(clippingPath),
   loadImage(linesPath),
-  loadImage(eyePath).catch(() => { console.warn('⚠️ EYEBALL.png not found — eye layer will be drawn without mask'); return null; }),
-]).then(([clippingImg, linesImg, eyeImg]) => {
+  loadImage(eyePath).catch(() => { console.warn('⚠️ EYEBALL.png not found'); return null; }),
+  loadImage(eyeLinesPath).catch(() => { console.warn('⚠️ EYEBALL_lines.png not found'); return null; }),
+]).then(([clippingImg, linesImg, eyeImg, eyeLinesImg]) => {
   const W = Math.max(clippingImg.naturalWidth,  linesImg.naturalWidth);
   const H = Math.max(clippingImg.naturalHeight, linesImg.naturalHeight);
   canvas.width=W; canvas.height=H;
@@ -1124,13 +1125,21 @@ debugEyeBtn.style.display = 'none';
   recolorLineartFromBase(lineData, beneathData);
   ctxLine.putImageData(lineData, 0, 0);
 
-  // ── FINAL: draw all layers onto output canvas ─────────────
-  console.log('🎨 Step F: Final compositing...');
-  ctx.clearRect(0,0,W,H);
-  ctx.drawImage(offBeneath, 0, 0);
-  ctx.globalAlpha = 0.82;
-  ctx.drawImage(offLine, 0, 0);
-  ctx.globalAlpha = 1.0;
+// ── FINAL: draw all layers onto output canvas ─────────────
+console.log('🎨 Step F: Final compositing...');
+ctx.clearRect(0,0,W,H);
+ctx.drawImage(offBeneath, 0, 0);
+ctx.globalAlpha = 0.82;
+ctx.drawImage(offLine, 0, 0);
+ctx.globalAlpha = 1.0;
+
+// ── PUPIL: draw EYEBALL_lines.png on top of everything ────
+if (eyeLinesImg) {
+  console.log('👁️ Drawing pupil overlay (EYEBALL_lines.png)...');
+  ctx.drawImage(eyeLinesImg, 0, 0, W, H);
+} else {
+  console.log('⚠️ No EYEBALL_lines.png found - pupil not drawn');
+}
 
   console.log('✅ Dragon generation complete!');
   document.getElementById('loading-msg').style.display='none';

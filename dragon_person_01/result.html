@@ -464,7 +464,7 @@ function drawEyeLayer(ctx, W, H, style, rng) {
       g.addColorStop(0,'#f0f0ff'); g.addColorStop(0.5,'#c0c0e0'); g.addColorStop(1,'#606080');
       ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
       ctx.strokeStyle='rgba(200,200,255,0.3)'; ctx.lineWidth=Math.max(1.5,W*0.01);
-      for(let i=0;i=4;i++) spiral(i*1.26, true);
+      for(let i=0;i<4;i++) spiral(i*1.26, true);
       break;
     }
     case 'deep_void': {
@@ -999,6 +999,8 @@ Promise.all([
 ]).then(([clippingImg, linesImg, eyeImg, eyeLinesImg]) => {
   const W = Math.max(clippingImg.naturalWidth,  linesImg.naturalWidth);
   const H = Math.max(clippingImg.naturalHeight, linesImg.naturalHeight);
+  const canvas = document.getElementById('output-canvas');
+  const ctx = canvas.getContext('2d');
   canvas.width=W; canvas.height=H;
   console.log(`📐 Canvas dimensions: ${W}x${H}`);
 

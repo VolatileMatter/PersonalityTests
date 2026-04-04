@@ -955,17 +955,23 @@ Promise.all([
   // Composite the eye onto the beneath canvas
   ctxBeneath.drawImage(offEyeArt, 0, 0);
   console.log('✅ Eye layer composited');
-  // DEBUG: Save eye layer alone to see what's happening
-const debugCanvas = document.createElement('canvas');
-debugCanvas.width = W;
-debugCanvas.height = H;
-const debugCtx = debugCanvas.getContext('2d');
-debugCtx.drawImage(offEyeArt, 0, 0);
-console.log('👁️ DEBUG: Eye layer saved - check browser downloads');
-const debugLink = document.createElement('a');
-debugLink.download = 'debug_eye_layer.png';
-debugLink.href = debugCanvas.toDataURL();
-debugLink.click();
+  // DEBUG: Create button to save eye layer alone for inspection
+const debugEyeBtn = document.createElement('button');
+debugEyeBtn.textContent = '🐉 DEBUG: Download Eye Layer Only';
+debugEyeBtn.style.cssText = 'position:fixed; bottom:10px; right:10px; z-index:9999; background:#c9a84c; color:#000; border:none; padding:8px 12px; border-radius:4px; font-size:12px; cursor:pointer; font-family:monospace;';
+debugEyeBtn.onclick = () => {
+  const debugCanvas = document.createElement('canvas');
+  debugCanvas.width = W;
+  debugCanvas.height = H;
+  const debugCtx = debugCanvas.getContext('2d');
+  debugCtx.drawImage(offEyeArt, 0, 0);
+  const a = document.createElement('a');
+  a.download = `debug_eye_layer_${Date.now()}.png`;
+  a.href = debugCanvas.toDataURL();
+  a.click();
+  console.log('👁️ DEBUG: Eye layer downloaded');
+};
+document.body.appendChild(debugEyeBtn);
 
   const beneathData = ctxBeneath.getImageData(0,0,W,H);
 

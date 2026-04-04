@@ -933,39 +933,79 @@ Promise.all([
   ctxBeneath.drawImage(offBase, 0, 0);
   ctxBeneath.drawImage(offPat,  0, 0);
 
-  // ── D: Eye layer — ALWAYS draw, with or without mask ──────
-  console.log(`🎨 Step D: Drawing eye layer (style: ${eyeStyle})...`);
-  const EW = W, EH = H;  // Use full canvas dimensions
-  const offEyeArt = makeOff(EW, EH);
-  const ctxEyeArt = offEyeArt.getContext('2d');
-  
-  // Draw the eye pattern
-  drawEyeLayer(ctxEyeArt, EW, EH, eyeStyle, mulberry32(eyeSeed));
-  
-// Recolor and composite EYEBALL.png directly (no clipping)
+// ── D: Eye layer — recolor only the non-transparent parts of EYEBALL.png ──
+console.log(`🎨 Step D: Drawing eye layer (style: ${eyeStyle})...`);
+const EW = W, EH = H;
+const offEyeArt = makeOff(EW, EH);
+const ctxEyeArt = offEyeArt.getContext('2d');
+
+// Draw the eye pattern FIRST (the colorful swirls)
+drawEyeLayer(ctxEyeArt, EW, EH, eyeStyle, mulberry32(eyeSeed));
+
+// If we have an eyeball mask image, recolor it and composite on top
 if (eyeImg) {
-  console.log('   Recoloring and compositing EYEBALL.png...');
+  console.log('   Processing EYEBALL.png - finding non-transparent pixels...');
   
-  // Draw the eyeball image onto a temp canvas
+  // Create a temporary canvas for the eyeball mask
   const offEyeMask = makeOff(EW, EH);
   const ctxEyeMask = offEyeMask.getContext('2d');
   ctxEyeMask.drawImage(eyeImg, 0, 0, EW, EH);
   
-  // Recolor the eyeball mask to the eye style colors
-  const eyeMaskData = ctxEyeMask.getImageData(0, 0, EW, EH);
-  // You can recolor it here if needed, or just use as-is
-  ctxEyeMask.putImageData(eyeMaskData, 0, 0);
+  // Get the mask pixel data
+  const maskData = ctxEyeMask.getImageData(0, 0, EW, EH);
+  const pixels = maskData.data;
   
-  // Composite the eyeball ON TOP of the eye pattern (not as a mask)
-  ctxEyeArt.globalCompositeOperation = 'source-over';
+  // Get the target eye color based on eyeStyle
+  let eyeColorR, eyeColorG, eyeColorB;
+  switch(eyeStyle) {
+    case 'pink_purple_swirl': eyeColorR = 255; eyeColorG = 128; eyeColorB = 192; break;
+    case 'gold_white_swirl': eyeColorR = 201; eyeColorG = 168; eyeColorB = 76; break;
+    case 'green_gold_split': eyeColorR = 26; eyeColorG = 154; eyeColorB = 64; break;
+    case 'purple_blue_blob': eyeColorR = 96; eyeColorG = 48; eyeColorB = 176; break;
+    case 'rainbow_swirl': eyeColorR = 255; eyeColorG = 100; eyeColorB = 100; break;
+    case 'cyan_blue_space': eyeColorR = 0; eyeColorG = 180; eyeColorB = 200; break;
+    case 'black_purple_stripes': eyeColorR = 80; eyeColorG = 20; eyeColorB = 120; break;
+    case 'pink_purple_hearts': eyeColorR = 220; eyeColorG = 80; eyeColorB = 140; break;
+    case 'molten_lava': eyeColorR = 255; eyeColorG = 68; eyeColorB = 0; break;
+    case 'forest_green': eyeColorR = 64; eyeColorG = 200; eyeColorB = 64; break;
+    case 'storm_grey': eyeColorR = 128; eyeColorG = 136; eyeColorB = 144; break;
+    case 'honey_amber': eyeColorR = 232; eyeColorG = 160; eyeColorB = 32; break;
+    case 'pale_moon': eyeColorR = 240; eyeColorG = 240; eyeColorB = 255; break;
+    case 'deep_void': eyeColorR = 26; eyeColorG = 0; eyeColorB = 128; break;
+    case 'electric_blue': eyeColorR = 0; eyeColorG = 255; eyeColorB = 255; break;
+    case 'autumn_maple': eyeColorR = 255; eyeColorG = 128; eyeColorB = 64; break;
+    case 'winter_frost': eyeColorR = 144; eyeColorG = 184; eyeColorB = 216; break;
+    case 'sunrise_orange': eyeColorR = 255; eyeColorG = 170; eyeColorB = 68; break;
+    default: eyeColorR = 255; eyeColorG = 100; eyeColorB = 100; break;
+  }
+  
+  // Only recolor pixels that are NOT transparent (alpha > 50)
+  let coloredPixels = 0;
+  for (let i = 0; i < pixels.length; i += 4) {
+    if (pixels[i+3] > 50) {  // If pixel is visible
+      pixels[i] = eyeColorR;     // R
+      pixels[i+1] = eyeColorG;   // G
+      pixels[i+2] = eyeColorB;   // B
+      pixels[i+3] = 255;         // Make fully opaque
+      coloredPixels++;
+    }
+  }
+  
+  console.log(`   Recolored ${coloredPixels} non-transparent pixels in eyeball`);
+  ctxEyeMask.putImageData(maskData, 0, 0);
+  
+  // Composite the recolored eyeball ON TOP of the eye pattern
   ctxEyeArt.drawImage(offEyeMask, 0, 0);
+  console.log('   Recolored eyeball composited on top of pattern');
+  
 } else {
   console.log('   No EYEBALL.png — drawing eye pattern only');
 }
-  
-  // Composite the eye onto the beneath canvas
-  ctxBeneath.drawImage(offEyeArt, 0, 0);
-  console.log('✅ Eye layer composited');
+
+// Composite the eye onto the beneath canvas
+ctxBeneath.drawImage(offEyeArt, 0, 0);
+console.log('✅ Eye layer composited');
+
   // DEBUG: Create button to save eye layer alone for inspection
 const debugEyeBtn = document.createElement('button');
 debugEyeBtn.textContent = '🐉 DEBUG: Download Eye Layer Only';

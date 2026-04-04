@@ -225,70 +225,131 @@ function recolorLineartFromBase(lineData, baseData) {
 //  (The draw logic is small enough to duplicate.)
 // ══════════════════════════════════════════════════════════════
 function drawEyeLayer(ctx, W, H, style, rng) {
-  const cx=W/2,cy=H/2,r=Math.min(W,H)*0.48;
+  // Draws eye art filling the full canvas (W×H).
+  // Caller is responsible for masking to EYEBALL.png alpha afterward.
+  const cx=W/2, cy=H/2, r=Math.min(W,H)*0.48;
   ctx.clearRect(0,0,W,H);
   ctx.save();
-  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.clip();
-  switch(style){
-    case 'pink_purple_swirl':{
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.clip();
+
+  // Helper: draw a spiral arm starting from center, no stray line to (0,0)
+  function spiral(offsetAngle, jitter) {
+    ctx.beginPath();
+    let first=true;
+    for(let a=0.01; a<Math.PI*6; a+=0.05) {
+      const rad=(a/(Math.PI*6))*r*0.95;
+      const jx = jitter ? (rng()-0.5)*rad*0.15 : 0;
+      const jy = jitter ? (rng()-0.5)*rad*0.15 : 0;
+      const px=cx+Math.cos(a+offsetAngle)*rad+jx;
+      const py=cy+Math.sin(a+offsetAngle)*rad+jy;
+      first ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
+      first=false;
+    }
+    ctx.stroke();
+  }
+
+  switch(style) {
+    case 'pink_purple_swirl': {
       const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
-      g.addColorStop(0,'#ff80c0');g.addColorStop(0.5,'#c050c0');g.addColorStop(1,'#5010a0');
-      ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-      ctx.strokeStyle='rgba(255,200,255,0.4)';ctx.lineWidth=Math.max(2,W*0.015);
-      for(let i=0;i<5;i++){ctx.beginPath();for(let a=0;a<Math.PI*6;a+=0.05){const rad=(a/(Math.PI*6))*r*0.95;ctx.lineTo(cx+Math.cos(a+i*1.26+rng()*0.3)*rad,cy+Math.sin(a+i*1.26+rng()*0.3)*rad);}ctx.stroke();}
-      break;}
-    case 'gold_white_swirl':{
+      g.addColorStop(0,'#ff80c0'); g.addColorStop(0.5,'#c050c0'); g.addColorStop(1,'#5010a0');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle='rgba(255,200,255,0.45)'; ctx.lineWidth=Math.max(2,W*0.015);
+      for(let i=0;i<5;i++) spiral(i*1.26, true);
+      break;
+    }
+    case 'gold_white_swirl': {
       const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
-      g.addColorStop(0,'#fffce0');g.addColorStop(0.4,'#e8c060');g.addColorStop(1,'#7a5010');
-      ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-      ctx.strokeStyle='rgba(255,255,230,0.5)';ctx.lineWidth=Math.max(2,W*0.015);
-      for(let i=0;i<5;i++){ctx.beginPath();for(let a=0;a<Math.PI*6;a+=0.05){const rad=(a/(Math.PI*6))*r*0.95;ctx.lineTo(cx+Math.cos(a+i*1.26)*rad,cy+Math.sin(a+i*1.26)*rad);}ctx.stroke();}
-      break;}
-    case 'green_gold_split':{
+      g.addColorStop(0,'#fffce0'); g.addColorStop(0.4,'#e8c060'); g.addColorStop(1,'#7a5010');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle='rgba(255,255,230,0.55)'; ctx.lineWidth=Math.max(2,W*0.015);
+      for(let i=0;i<5;i++) spiral(i*1.26, false);
+      break;
+    }
+    case 'green_gold_split': {
       const gl=ctx.createLinearGradient(0,0,W,0);
-      gl.addColorStop(0,'#0a5020');gl.addColorStop(0.46,'#1a9a40');
-      gl.addColorStop(0.54,'#c9a84c');gl.addColorStop(1,'#6a4008');
-      ctx.fillStyle=gl;ctx.fillRect(0,0,W,H);
+      gl.addColorStop(0,'#0a5020'); gl.addColorStop(0.46,'#1a9a40');
+      gl.addColorStop(0.54,'#c9a84c'); gl.addColorStop(1,'#6a4008');
+      ctx.fillStyle=gl; ctx.fillRect(0,0,W,H);
       const sl=ctx.createLinearGradient(cx-4,0,cx+4,0);
-      sl.addColorStop(0,'rgba(255,255,200,0)');sl.addColorStop(0.5,'rgba(255,255,200,0.35)');sl.addColorStop(1,'rgba(255,255,200,0)');
-      ctx.fillStyle=sl;ctx.fillRect(cx-4,0,8,H);
-      break;}
-    case 'purple_blue_blob':{
-      ctx.fillStyle='#050312';ctx.fillRect(0,0,W,H);
+      sl.addColorStop(0,'rgba(255,255,200,0)'); sl.addColorStop(0.5,'rgba(255,255,200,0.35)'); sl.addColorStop(1,'rgba(255,255,200,0)');
+      ctx.fillStyle=sl; ctx.fillRect(cx-4,0,8,H);
+      break;
+    }
+    case 'purple_blue_blob': {
+      ctx.fillStyle='#050312'; ctx.fillRect(0,0,W,H);
       [[cx-r*0.2,cy-r*0.15,'#4020a0'],[cx+r*0.2,cy+r*0.1,'#1040c0'],[cx,cy,'#5530b0']].forEach(([bx,by,c])=>{
         const bg=ctx.createRadialGradient(bx,by,0,bx,by,r*(0.5+rng()*0.3));
-        bg.addColorStop(0,c+'dd');bg.addColorStop(1,'transparent');
-        ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);});
-      break;}
-    case 'rainbow_swirl':{
-      for(let i=0;i<360;i+=2){ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,i*Math.PI/180,(i+2)*Math.PI/180);ctx.closePath();ctx.fillStyle=`hsl(${i},100%,55%)`;ctx.fill();}
-      ctx.strokeStyle='rgba(255,255,255,0.35)';ctx.lineWidth=Math.max(1.5,W*0.012);
-      for(let i=0;i<4;i++){ctx.beginPath();for(let a=0;a<Math.PI*4;a+=0.05){const rad=(a/(Math.PI*4))*r*0.9;ctx.lineTo(cx+Math.cos(a+i*1.57)*rad,cy+Math.sin(a+i*1.57)*rad);}ctx.stroke();}
-      break;}
-    case 'cyan_blue_space':{
-      ctx.fillStyle='#000c20';ctx.fillRect(0,0,W,H);
+        bg.addColorStop(0,c+'dd'); bg.addColorStop(1,'transparent');
+        ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+      });
+      break;
+    }
+    case 'rainbow_swirl': {
+      for(let i=0;i<360;i+=2) {
+        ctx.beginPath(); ctx.moveTo(cx,cy);
+        ctx.arc(cx,cy,r,i*Math.PI/180,(i+2)*Math.PI/180); ctx.closePath();
+        ctx.fillStyle=`hsl(${i},100%,55%)`; ctx.fill();
+      }
+      ctx.strokeStyle='rgba(255,255,255,0.38)'; ctx.lineWidth=Math.max(1.5,W*0.012);
+      for(let i=0;i<4;i++) {
+        ctx.beginPath();
+        let first=true;
+        for(let a=0.01;a<Math.PI*4;a+=0.05){
+          const rad=(a/(Math.PI*4))*r*0.9;
+          const px=cx+Math.cos(a+i*1.57)*rad, py=cy+Math.sin(a+i*1.57)*rad;
+          first ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
+          first=false;
+        }
+        ctx.stroke();
+      }
+      break;
+    }
+    case 'cyan_blue_space': {
+      ctx.fillStyle='#000c20'; ctx.fillRect(0,0,W,H);
       [[cx-r*0.15,cy-r*0.1,'#00b0c8'],[cx+r*0.2,cy+r*0.15,'#1030c0'],[cx-r*0.1,cy+r*0.2,'#0080b0']].forEach(([bx,by,c])=>{
         const bg=ctx.createRadialGradient(bx,by,0,bx,by,r*(0.45+rng()*0.25));
-        bg.addColorStop(0,c+'cc');bg.addColorStop(1,'transparent');
-        ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);});
+        bg.addColorStop(0,c+'cc'); bg.addColorStop(1,'transparent');
+        ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+      });
       ctx.fillStyle='#ffd700';
-      for(let i=0;i<14;i++){const sx=rng()*W,sy=rng()*H,sr=0.5+rng()*Math.max(1.5,W*0.008);ctx.beginPath();ctx.arc(sx,sy,sr,0,Math.PI*2);ctx.fill();if(sr>W*0.006){ctx.strokeStyle='rgba(255,215,0,0.6)';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(sx-sr*2,sy);ctx.lineTo(sx+sr*2,sy);ctx.stroke();ctx.beginPath();ctx.moveTo(sx,sy-sr*2);ctx.lineTo(sx,sy+sr*2);ctx.stroke();}}
-      break;}
-    case 'black_purple_stripes':{
-      ctx.fillStyle='#06030f';ctx.fillRect(0,0,W,H);
-      const sw=Math.max(4,W*0.06);ctx.strokeStyle='#3a0878';ctx.lineWidth=sw*0.6;
-      for(let i=-W;i<W*2;i+=sw*1.6){ctx.beginPath();ctx.moveTo(i,-H*0.1);ctx.lineTo(i+H*1.2,H*1.1);ctx.stroke();}
-      const sg=ctx.createRadialGradient(cx,cy,0,cx,cy,r);sg.addColorStop(0,'rgba(80,0,160,0.2)');sg.addColorStop(1,'transparent');ctx.fillStyle=sg;ctx.fillRect(0,0,W,H);
-      break;}
-    case 'pink_purple_hearts':{
+      for(let i=0;i<14;i++){
+        const sx=rng()*W, sy=rng()*H, sr=0.5+rng()*Math.max(1.5,W*0.008);
+        ctx.beginPath(); ctx.arc(sx,sy,sr,0,Math.PI*2); ctx.fill();
+        if(sr>W*0.006){
+          ctx.strokeStyle='rgba(255,215,0,0.6)'; ctx.lineWidth=0.5;
+          ctx.beginPath(); ctx.moveTo(sx-sr*2,sy); ctx.lineTo(sx+sr*2,sy); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(sx,sy-sr*2); ctx.lineTo(sx,sy+sr*2); ctx.stroke();
+        }
+      }
+      break;
+    }
+    case 'black_purple_stripes': {
+      ctx.fillStyle='#06030f'; ctx.fillRect(0,0,W,H);
+      const sw=Math.max(4,W*0.06); ctx.strokeStyle='#3a0878'; ctx.lineWidth=sw*0.6;
+      for(let i=-W;i<W*2;i+=sw*1.6){
+        ctx.beginPath(); ctx.moveTo(i,-H*0.1); ctx.lineTo(i+H*1.2,H*1.1); ctx.stroke();
+      }
+      const sg=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      sg.addColorStop(0,'rgba(80,0,160,0.2)'); sg.addColorStop(1,'transparent');
+      ctx.fillStyle=sg; ctx.fillRect(0,0,W,H);
+      break;
+    }
+    case 'pink_purple_hearts': {
       const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
-      g.addColorStop(0,'#ffc0d8');g.addColorStop(1,'#c060a0');
-      ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-      const hs=Math.max(8,W*0.09);ctx.fillStyle='rgba(140,20,100,0.45)';
+      g.addColorStop(0,'#ffc0d8'); g.addColorStop(1,'#c060a0');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      const hs=Math.max(8,W*0.09); ctx.fillStyle='rgba(140,20,100,0.45)';
       [[cx-r*0.3,cy-r*0.2],[cx+r*0.28,cy+r*0.15],[cx-r*0.05,cy+r*0.3],[cx+r*0.1,cy-r*0.35]].forEach(([hx,hy])=>{
-        const s=hs*(0.7+rng()*0.6);ctx.beginPath();
-        ctx.moveTo(hx,hy+s*0.4);ctx.bezierCurveTo(hx,hy-s*0.2,hx-s,hy-s*0.6,hx-s,hy);ctx.bezierCurveTo(hx-s,hy+s*0.7,hx,hy+s*1.1,hx,hy+s*1.3);ctx.bezierCurveTo(hx,hy+s*1.1,hx+s,hy+s*0.7,hx+s,hy);ctx.bezierCurveTo(hx+s,hy-s*0.6,hx,hy-s*0.2,hx,hy+s*0.4);ctx.fill();});
-      break;}
+        const s=hs*(0.7+rng()*0.6); ctx.beginPath();
+        ctx.moveTo(hx,hy+s*0.4);
+        ctx.bezierCurveTo(hx,hy-s*0.2,hx-s,hy-s*0.6,hx-s,hy);
+        ctx.bezierCurveTo(hx-s,hy+s*0.7,hx,hy+s*1.1,hx,hy+s*1.3);
+        ctx.bezierCurveTo(hx,hy+s*1.1,hx+s,hy+s*0.7,hx+s,hy);
+        ctx.bezierCurveTo(hx+s,hy-s*0.6,hx,hy-s*0.2,hx,hy+s*0.4);
+        ctx.fill();
+      });
+      break;
+    }
   }
   ctx.restore();
 }
@@ -382,24 +443,41 @@ Promise.all([
   ctxPat.drawImage(clippingImg, 0, 0);
   ctxPat.globalCompositeOperation='source-over';
 
-  // ── C: Eye layer — drawn onto EYEBALL.png shape ───────────
-  const offEye = makeOff(W,H);
-  if (eyeImg) {
-    const EW=eyeImg.naturalWidth, EH=eyeImg.naturalHeight;
-    const offEyeArt = makeOff(EW,EH), ctxEyeArt = offEyeArt.getContext('2d');
-    drawEyeLayer(ctxEyeArt, EW, EH, eyeStyle, mulberry32(eyeSeed));
-    ctxEyeArt.globalCompositeOperation='destination-in';
-    ctxEyeArt.drawImage(eyeImg, 0, 0);
-    ctxEyeArt.globalCompositeOperation='source-over';
-    offEye.getContext('2d').drawImage(offEyeArt, (W-EW)/2, (H-EH)/2);
-  }
-
-  // ── D: Composite base + pattern + eye → "beneath" canvas ──
-  //    This is what the lineart samples its color from.
+  // ── C: Composite base + pattern → "beneath" canvas ───────
+  //    Eye is added AFTER this, so it sits on top of pattern.
+  //    Lineart samples from beneath+eye combined (see step E).
   const offBeneath = makeOff(W,H), ctxBeneath = offBeneath.getContext('2d');
   ctxBeneath.drawImage(offBase, 0, 0);
-  ctxBeneath.drawImage(offPat, 0, 0);
-  if (eyeImg) ctxBeneath.drawImage(offEye, 0, 0);
+  ctxBeneath.drawImage(offPat,  0, 0);
+
+  // ── D: Eye layer — LAST thing before lineart ──────────────
+  //    Pipeline:
+  //      1. Draw eye art onto an offscreen sized to EYEBALL.png
+  //      2. Mask that art using EYEBALL.png's own alpha channel
+  //         via destination-in (only eye-shaped pixels survive)
+  //      3. Composite the masked eye onto offBeneath
+  if (eyeImg) {
+    const EW = eyeImg.naturalWidth, EH = eyeImg.naturalHeight;
+
+    // Step 1: draw eye art at EYEBALL dimensions
+    const offEyeArt = makeOff(EW, EH);
+    const ctxEyeArt = offEyeArt.getContext('2d');
+    drawEyeLayer(ctxEyeArt, EW, EH, eyeStyle, mulberry32(eyeSeed));
+
+    // Step 2: mask to EYEBALL.png alpha (destination-in keeps only
+    //         pixels where the mask is opaque)
+    ctxEyeArt.globalCompositeOperation = 'destination-in';
+    ctxEyeArt.drawImage(eyeImg, 0, 0);
+    ctxEyeArt.globalCompositeOperation = 'source-over';
+
+    // Step 3: place masked eye onto the beneath canvas
+    // EYEBALL.png is assumed to be positioned at the canvas origin
+    // matching the dragon art. Adjust ex/ey here if it needs offsetting.
+    const ex = 0, ey = 0;
+    ctxBeneath.drawImage(offEyeArt, ex, ey);
+  }
+
+  // Snapshot what lineart will sample from
   const beneathData = ctxBeneath.getImageData(0,0,W,H);
 
   // ── E: Lineart — recolored by sampling beneathData ────────

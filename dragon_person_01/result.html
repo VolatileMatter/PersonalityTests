@@ -955,6 +955,17 @@ Promise.all([
   // Composite the eye onto the beneath canvas
   ctxBeneath.drawImage(offEyeArt, 0, 0);
   console.log('✅ Eye layer composited');
+  // DEBUG: Save eye layer alone to see what's happening
+const debugCanvas = document.createElement('canvas');
+debugCanvas.width = W;
+debugCanvas.height = H;
+const debugCtx = debugCanvas.getContext('2d');
+debugCtx.drawImage(offEyeArt, 0, 0);
+console.log('👁️ DEBUG: Eye layer saved - check browser downloads');
+const debugLink = document.createElement('a');
+debugLink.download = 'debug_eye_layer.png';
+debugLink.href = debugCanvas.toDataURL();
+debugLink.click();
 
   const beneathData = ctxBeneath.getImageData(0,0,W,H);
 

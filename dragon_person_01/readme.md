@@ -20,7 +20,7 @@ dragon_person_01/
 └── base/
     ├── lines/          # Lineart PNGs (one per dragon species)
     ├── clipping/       # Clipping/base PNGs (one per dragon species, same filenames)
-    └── extras/
+    └── extra/
         └── EYEBALL.png # The eye overlay — must be same dimensions as dragon PNGs,
                         # positioned at canvas origin (top-left), alpha defines eye shape
 ```

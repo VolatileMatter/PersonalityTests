@@ -2,17 +2,17 @@
 
 export const meta = {
   id:     'activity',
-  prompt: 'Which of these do you enjoy most?',
+  prompt: 'How do you move through a room full of people you don\'t know?',
 };
 
 const OPTIONS = [
-  { value: 'running',  patternType: 'stripes',  label: 'Running',           sub: 'The open road, the wind at your heels', description: 'You are built for motion — your markings streak like velocity itself.' },
-  { value: 'climbing', patternType: 'dots',     label: 'Climbing',          sub: 'Rock and reach, summit in sight',       description: 'Your scales are speckled like lichen on stone, worn smooth by handholds.' },
-  { value: 'basking',  patternType: 'blobs',    label: 'Basking in the sun', sub: 'Still, warm, gloriously unhurried',    description: 'Your markings spread like afternoon light — warm, unhurried, without edges.' },
-  { value: 'dancing',  patternType: 'sharp',    label: 'Dancing',           sub: 'Sharp edges, sudden turns',             description: 'Your patterns cut like choreography — all angles and sudden redirections.' },
-  { value: 'singing',  patternType: 'twisting', label: 'Singing',           sub: 'A long note unfurling in the air',      description: 'Your markings twist like sound made visible, rising and curling.' },
-  { value: 'surfing',  patternType: 'waves',    label: 'Surfing / Skating', sub: 'Ride the rhythm of the world',          description: 'You carry the rhythm on your scales — wave after wave, going somewhere.' },
-  { value: 'sleeping', patternType: 'softblur', label: 'Sleeping',          sub: 'Soft, deep, blissfully formless',       description: 'Your markings blur at the edges like something half-remembered from a dream.' },
+  { value: 'running',  patternType: 'stripes',  label: 'Straight through it, with direction',  sub: 'You know where you\'re going before you arrive',          description: 'You are built for motion — your markings streak like velocity itself.' },
+  { value: 'climbing', patternType: 'dots',     label: 'From point to point, carefully',        sub: 'There are good spots in every room. You find them.',      description: 'Your scales are speckled like lichen on stone, worn smooth by handholds.' },
+  { value: 'basking',  patternType: 'blobs',    label: 'You find one place and settle in it',   sub: 'Circulation is overrated. You are warm here.',            description: 'Your markings spread like afternoon light — warm, unhurried, without edges.' },
+  { value: 'dancing',  patternType: 'sharp',    label: 'Unpredictably, with sudden pivots',     sub: 'Angles. Sharp turns. You keep people guessing.',          description: 'Your patterns cut like choreography — all angles and sudden redirections.' },
+  { value: 'singing',  patternType: 'twisting', label: 'Drifting, following conversations',     sub: 'Wherever the current takes you is fine.',                 description: 'Your markings twist like sound made visible, rising and curling.' },
+  { value: 'surfing',  patternType: 'waves',    label: 'In a rhythm, reading the whole room',   sub: 'You catch the pattern and move with it.',                 description: 'You carry the rhythm on your scales — wave after wave, going somewhere.' },
+  { value: 'sleeping', patternType: 'softblur', label: 'Reluctantly, at the edges',             sub: 'This is fine. You will leave soon. Probably.',            description: 'Your markings blur at the edges like something half-remembered from a dream.' },
 ];
 
 export function render(container, onAnswer) {

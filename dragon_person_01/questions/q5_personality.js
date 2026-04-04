@@ -2,16 +2,16 @@
 
 export const meta = {
   id:     'personality',
-  prompt: 'Which of these is you?',
+  prompt: 'Something has gone slightly wrong. What is your first instinct?',
 };
 
 const OPTIONS = [
-  { value: 'locked_in',    seedMod: 0, label: 'Locked in',                             sub: null,                                                  description: 'You are locked in. Whatever that means for you, it is absolute.' },
-  { value: 'born_to_shit', seedMod: 1, label: 'Born to shit, forced to wipe',          sub: null,                                                  description: 'You did not ask for any of this. You are handling it anyway. That counts.' },
-  { value: 'jester',       seedMod: 2, label: "The world's a stage and I'm the jester", sub: null,                                                 description: 'You have chosen the most honest role: the one who tells the truth through laughter.' },
-  { value: 'lone_wolf',    seedMod: 3, label: 'Lone wolf',                              sub: 'Black fur. Bright red eyes. Silver claws. Super big fangs.', description: 'You walk alone. Very dramatically. With excellent claws.' },
-  { value: 'captain',      seedMod: 4, label: 'Captain of this sinking ship',          sub: null,                                                  description: 'You did not cause the sinking. You are going down with it anyway, because that\'s who you are.' },
-  { value: 'director',     seedMod: 5, label: 'Director of the shitshow',              sub: null,                                                  description: 'You are not responsible for the chaos. You are, however, the one making sure it runs on schedule.' },
+  { value: 'locked_in',    seedMod: 0, label: 'Fix it immediately, with full focus',           sub: null,                                                                description: 'You are locked in. Whatever that means for you, it is absolute.' },
+  { value: 'born_to_shit', seedMod: 1, label: 'Accept it and adapt',                           sub: 'You did not cause this. You are handling it anyway.',               description: 'You did not ask for any of this. You are handling it anyway. That counts.' },
+  { value: 'jester',       seedMod: 2, label: 'Make a joke about it',                          sub: 'Not to avoid it. It just helps.',                                   description: 'You have chosen the most honest role: the one who tells the truth through laughter.' },
+  { value: 'lone_wolf',    seedMod: 3, label: 'Handle it alone, without telling anyone',       sub: 'Asking for help would take longer to explain.',                     description: 'You walk alone. Very dramatically. With excellent claws.' },
+  { value: 'captain',      seedMod: 4, label: 'Stay until it\'s resolved, no matter what',    sub: 'You will go down with this if necessary. You are aware.',           description: 'You did not cause the sinking. You are going down with it anyway, because that\'s who you are.' },
+  { value: 'director',     seedMod: 5, label: 'Take stock, delegate, and manage the fallout',  sub: 'Someone has to coordinate. Might as well be you.',                  description: 'You are not responsible for the chaos. You are, however, the one making sure it runs on schedule.' },
 ];
 
 export function render(container, onAnswer) {

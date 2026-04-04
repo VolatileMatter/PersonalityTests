@@ -36,7 +36,6 @@
       font-size: 0.85rem; line-height: 1.7; display: none;
     }
 
-    /* ── Name / subtitle ─────────────────────────── */
     .dragon-name {
       font-family: 'Cinzel Decorative', serif;
       font-size: clamp(1.5rem, 5vw, 2.3rem); color: var(--gold);
@@ -48,7 +47,6 @@
       color: var(--text-dim); font-size: 1rem; margin-bottom: 2rem;
     }
 
-    /* ── Descriptions ────────────────────────────── */
     .descriptions {
       max-width: 420px; width: 100%;
       display: flex; flex-direction: column; gap: 0.6rem;
@@ -64,7 +62,6 @@
       text-align: left;
     }
 
-    /* ── Buttons ─────────────────────────────────── */
     .btn-row {
       display: flex; gap: 0.75rem;
       justify-content: center; flex-wrap: wrap; margin-bottom: 3rem;
@@ -183,56 +180,35 @@ function flatRecolor(imageData, hex) {
 }
 
 // ══════════════════════════════════════════════════════════════
-//  LINEART RECOLOR — per-pixel sampling from composited base
-//
-//  For each lineart pixel with alpha > 50:
-//    • Sample the pixel at the same (x,y) in the composited base
-//    • If base pixel has alpha > 50:
-//        Take base RGB → HSV
-//        Increase S by 40% (clamp 1.0)   → more saturated
-//        Decrease V by 55% (clamp 0.0)   → much darker
-//        Write that color to lineart pixel
-//    • Else (no base beneath):
-//        Write pure black (0,0,0)
-//  Alpha of lineart pixel is preserved throughout.
+//  LINEART RECOLOR
 // ══════════════════════════════════════════════════════════════
 function recolorLineartFromBase(lineData, baseData) {
   const ld = lineData.data;
   const bd = baseData.data;
   for (let i = 0; i < ld.length; i += 4) {
-    if (ld[i+3] <= 50) continue; // transparent lineart pixel — skip
-
+    if (ld[i+3] <= 50) continue;
     if (bd[i+3] <= 50) {
-      // No base beneath — flat black
       ld[i]=0; ld[i+1]=0; ld[i+2]=0;
     } else {
-      // Sample base color, darken + saturate
       const [h, s, v] = rgbToHsv(bd[i], bd[i+1], bd[i+2]);
-      const ns = Math.min(s + 0.4, 1.0);  // boost saturation
-      const nv = Math.max(v - 0.55, 0.0); // crush brightness
+      const ns = Math.min(s + 0.4, 1.0);
+      const nv = Math.max(v - 0.55, 0.0);
       const [nr, ng, nb] = hsvToRgb(h, ns, nv);
       ld[i]=nr; ld[i+1]=ng; ld[i+2]=nb;
     }
-    // alpha untouched
   }
   return lineData;
 }
 
 // ══════════════════════════════════════════════════════════════
-//  EYE LAYER — imported from q3 to avoid duplication
-//  We re-implement drawEyeLayer inline here since result.html
-//  is a plain module and q3_eye.js exports render(), not the fn.
-//  (The draw logic is small enough to duplicate.)
+//  EYE LAYER
 // ══════════════════════════════════════════════════════════════
 function drawEyeLayer(ctx, W, H, style, rng) {
-  // Draws eye art filling the full canvas (W×H).
-  // Caller is responsible for masking to EYEBALL.png alpha afterward.
   const cx=W/2, cy=H/2, r=Math.min(W,H)*0.48;
   ctx.clearRect(0,0,W,H);
   ctx.save();
   ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.clip();
 
-  // Helper: draw a spiral arm starting from center, no stray line to (0,0)
   function spiral(offsetAngle, jitter) {
     ctx.beginPath();
     let first=true;
@@ -355,16 +331,403 @@ function drawEyeLayer(ctx, W, H, style, rng) {
 }
 
 // ══════════════════════════════════════════════════════════════
-//  BODY PATTERN GENERATORS
+//  BODY PATTERN GENERATORS — dramatic, busy, natural
 // ══════════════════════════════════════════════════════════════
-function patternStripes(ctx,W,H,rng,mod){const c=6+Math.floor(rng()*8)+mod,sw=W/(c*2),a=(rng()*40-20)*Math.PI/180;ctx.save();ctx.translate(W/2,H/2);ctx.rotate(a);ctx.translate(-W,-H);ctx.fillStyle='rgba(0,0,0,0.55)';for(let i=0;i<c*4;i+=2){ctx.fillRect(i*sw-W/2,-H,sw*(0.5+rng()*0.8),H*3);}ctx.restore();}
-function patternDots(ctx,W,H,rng,mod){ctx.fillStyle='rgba(0,0,0,0.6)';for(let i=0;i<30+mod*8;i++){ctx.beginPath();ctx.arc(rng()*W,rng()*H,4+rng()*(8+mod*2),0,Math.PI*2);ctx.fill();}}
-function patternBlobs(ctx,W,H,rng,mod){ctx.fillStyle='rgba(0,0,0,0.45)';for(let i=0;i<3+Math.floor(rng()*3)+Math.floor(mod/2);i++){const cx=W*(0.15+rng()*0.7),cy=H*(0.15+rng()*0.7),rx=W*(0.12+rng()*0.22),ry=H*(0.1+rng()*0.2);ctx.beginPath();for(let j=0;j<8;j++){const a=(j/8)*Math.PI*2,w=0.75+rng()*0.5;j===0?ctx.moveTo(cx+Math.cos(a)*rx*w,cy+Math.sin(a)*ry*w):ctx.lineTo(cx+Math.cos(a)*rx*w,cy+Math.sin(a)*ry*w);}ctx.closePath();ctx.fill();}}
-function patternSharp(ctx,W,H,rng,mod){ctx.fillStyle='rgba(0,0,0,0.5)';for(let i=0;i<5+mod*2;i++){const cx=rng()*W,cy=rng()*H,sides=3+Math.floor(rng()*3),size=20+rng()*(40+mod*8),rot=rng()*Math.PI*2;ctx.beginPath();for(let j=0;j<sides;j++){const a=rot+(j/sides)*Math.PI*2,r=size*(0.6+rng()*0.8);j===0?ctx.moveTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r):ctx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);}ctx.closePath();ctx.fill();}}
-function patternTwisting(ctx,W,H,rng,mod){ctx.strokeStyle='rgba(0,0,0,0.55)';for(let i=0;i<3+Math.floor(mod/2);i++){ctx.lineWidth=8+rng()*(12+mod*3);ctx.lineCap='round';ctx.beginPath();ctx.moveTo(rng()*W,rng()*H*0.3);const s=4+Math.floor(rng()*3);for(let j=0;j<s;j++)ctx.quadraticCurveTo(rng()*W,(j/s)*H+rng()*H*0.2,rng()*W,((j+1)/s)*H);ctx.stroke();}}
-function patternWaves(ctx,W,H,rng,mod){ctx.strokeStyle='rgba(0,0,0,0.5)';for(let i=0;i<3+Math.floor(mod/2);i++){const yB=(i/(3+Math.floor(mod/2)))*H+rng()*(H/(3+Math.floor(mod/2))),amp=15+rng()*(25+mod*4),freq=(2+rng()*3)*Math.PI*2/W,ph=rng()*Math.PI*2;ctx.lineWidth=6+rng()*10;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(0,yB+Math.sin(ph)*amp);for(let x=1;x<=W;x+=2)ctx.lineTo(x,yB+Math.sin(x*freq+ph)*amp);ctx.stroke();}}
-function patternSoftBlur(ctx,W,H,rng,mod){for(let i=0;i<4+Math.floor(mod/2);i++){const cx=rng()*W,cy=rng()*H,r=40+rng()*(60+mod*12),g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);g.addColorStop(0,'rgba(0,0,0,0.45)');g.addColorStop(0.5,'rgba(0,0,0,0.2)');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();}}
-const PATTERN_FNS={stripes:patternStripes,dots:patternDots,blobs:patternBlobs,sharp:patternSharp,twisting:patternTwisting,waves:patternWaves,softblur:patternSoftBlur};
+
+// ── Utility: draw a noisy organic stroke between two points ──
+function noisyStroke(ctx, x0, y0, x1, y1, rng, jitter) {
+  ctx.beginPath();
+  ctx.moveTo(x0, y0);
+  const steps = 8;
+  for (let i = 1; i <= steps; i++) {
+    const t = i / steps;
+    const mx = x0 + (x1 - x0) * t + (rng() - 0.5) * jitter;
+    const my = y0 + (y1 - y0) * t + (rng() - 0.5) * jitter;
+    ctx.lineTo(mx, my);
+  }
+  ctx.stroke();
+}
+
+// ── STRIPES: Bold diagonal racing stripes with soft feathered edges ──
+function patternStripes(ctx, W, H, rng, mod, color) {
+  const [cr, cg, cb] = hexToRgb(color);
+  const count = 5 + Math.floor(rng() * 6) + mod;
+  const angle = (25 + rng() * 35) * Math.PI / 180 * (rng() > 0.5 ? 1 : -1);
+  const diag = Math.sqrt(W * W + H * H);
+
+  ctx.save();
+  ctx.translate(W / 2, H / 2);
+  ctx.rotate(angle);
+
+  for (let i = 0; i < count; i++) {
+    const t = (i / count) * 2 - 1;
+    const cx2 = t * diag * 0.6 + (rng() - 0.5) * diag * 0.15;
+    const hw = diag * (0.03 + rng() * 0.06 + mod * 0.008);
+
+    // Core stripe
+    const alpha = 0.55 + rng() * 0.3;
+    ctx.fillStyle = `rgba(${cr},${cg},${cb},${alpha})`;
+    ctx.fillRect(cx2 - hw, -diag, hw * 2, diag * 2);
+
+    // Feathered edges
+    const edgeG = ctx.createLinearGradient(cx2 - hw * 2.5, 0, cx2 + hw * 2.5, 0);
+    edgeG.addColorStop(0, `rgba(${cr},${cg},${cb},0)`);
+    edgeG.addColorStop(0.25, `rgba(${cr},${cg},${cb},${alpha * 0.6})`);
+    edgeG.addColorStop(0.5, `rgba(${cr},${cg},${cb},0)`);
+    edgeG.addColorStop(0.75, `rgba(${cr},${cg},${cb},${alpha * 0.6})`);
+    edgeG.addColorStop(1, `rgba(${cr},${cg},${cb},0)`);
+    ctx.fillStyle = edgeG;
+    ctx.fillRect(cx2 - hw * 2.5, -diag, hw * 5, diag * 2);
+
+    // Thin bright highlight line
+    if (rng() > 0.4) {
+      ctx.strokeStyle = `rgba(${Math.min(cr+60,255)},${Math.min(cg+60,255)},${Math.min(cb+60,255)},0.35)`;
+      ctx.lineWidth = 1 + rng() * 2;
+      ctx.beginPath();
+      ctx.moveTo(cx2 - hw * 0.3, -diag);
+      ctx.lineTo(cx2 - hw * 0.3, diag);
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
+}
+
+// ── DOTS: Organic leopard/cheetah rosette spots ──
+function patternDots(ctx, W, H, rng, mod, color) {
+  const [cr, cg, cb] = hexToRgb(color);
+  const count = 18 + mod * 6 + Math.floor(rng() * 12);
+
+  for (let i = 0; i < count; i++) {
+    const cx2 = rng() * W * 1.2 - W * 0.1;
+    const cy2 = rng() * H * 1.2 - H * 0.1;
+    const baseR = 8 + rng() * (18 + mod * 3);
+    const type = rng();
+
+    if (type < 0.35) {
+      // Solid spot with soft fade
+      const g = ctx.createRadialGradient(cx2, cy2, 0, cx2, cy2, baseR);
+      g.addColorStop(0, `rgba(${cr},${cg},${cb},0.75)`);
+      g.addColorStop(0.6, `rgba(${cr},${cg},${cb},0.5)`);
+      g.addColorStop(1, `rgba(${cr},${cg},${cb},0)`);
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(cx2, cy2, baseR * 1.4, 0, Math.PI * 2); ctx.fill();
+
+    } else if (type < 0.65) {
+      // Rosette: open ring of smaller dots
+      const ringR = baseR * 1.1;
+      const dotCount = 4 + Math.floor(rng() * 3);
+      const dotR = baseR * 0.28 + rng() * baseR * 0.18;
+      const startA = rng() * Math.PI * 2;
+      for (let j = 0; j < dotCount; j++) {
+        const a = startA + (j / dotCount) * Math.PI * 2;
+        const dx = cx2 + Math.cos(a) * ringR;
+        const dy = cy2 + Math.sin(a) * ringR;
+        const alpha = 0.55 + rng() * 0.25;
+        const sg = ctx.createRadialGradient(dx, dy, 0, dx, dy, dotR);
+        sg.addColorStop(0, `rgba(${cr},${cg},${cb},${alpha})`);
+        sg.addColorStop(1, `rgba(${cr},${cg},${cb},0)`);
+        ctx.fillStyle = sg;
+        ctx.beginPath(); ctx.arc(dx, dy, dotR * 1.5, 0, Math.PI * 2); ctx.fill();
+      }
+      // Faint center
+      if (rng() > 0.5) {
+        const cg2 = ctx.createRadialGradient(cx2, cy2, 0, cx2, cy2, baseR * 0.5);
+        cg2.addColorStop(0, `rgba(${cr},${cg},${cb},0.25)`);
+        cg2.addColorStop(1, `rgba(${cr},${cg},${cb},0)`);
+        ctx.fillStyle = cg2;
+        ctx.beginPath(); ctx.arc(cx2, cy2, baseR * 0.7, 0, Math.PI * 2); ctx.fill();
+      }
+
+    } else {
+      // Irregular blob spot
+      ctx.fillStyle = `rgba(${cr},${cg},${cb},${0.4 + rng() * 0.35})`;
+      ctx.beginPath();
+      const pts = 5 + Math.floor(rng() * 4);
+      for (let j = 0; j < pts; j++) {
+        const a = (j / pts) * Math.PI * 2;
+        const r2 = baseR * (0.55 + rng() * 0.7);
+        const px = cx2 + Math.cos(a) * r2;
+        const py = cy2 + Math.sin(a) * r2;
+        j === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      }
+      ctx.closePath(); ctx.fill();
+    }
+  }
+}
+
+// ── BLOBS: Dappled sunlight through leaves / large cloud shadows ──
+function patternBlobs(ctx, W, H, rng, mod, color) {
+  const [cr, cg, cb] = hexToRgb(color);
+  const count = 6 + Math.floor(rng() * 4) + Math.floor(mod / 2);
+
+  for (let i = 0; i < count; i++) {
+    const cx2 = W * (0.05 + rng() * 0.9);
+    const cy2 = H * (0.05 + rng() * 0.9);
+    const rx = W * (0.1 + rng() * 0.28);
+    const ry = H * (0.08 + rng() * 0.22);
+    const pts = 10 + Math.floor(rng() * 6);
+    const alpha = 0.3 + rng() * 0.35;
+    const rotation = rng() * Math.PI;
+
+    // Build an irregular organic blob
+    ctx.save();
+    ctx.translate(cx2, cy2);
+    ctx.rotate(rotation);
+    ctx.beginPath();
+    for (let j = 0; j < pts; j++) {
+      const a = (j / pts) * Math.PI * 2;
+      const wobble = 0.6 + rng() * 0.8;
+      const r2 = Math.sqrt(rx * rx * Math.cos(a) * Math.cos(a) + ry * ry * Math.sin(a) * Math.sin(a)) * wobble;
+      const px = Math.cos(a) * r2;
+      const py = Math.sin(a) * r2;
+      j === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+
+    // Gradient fill — brighter center
+    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, Math.max(rx, ry));
+    g.addColorStop(0, `rgba(${cr},${cg},${cb},${alpha})`);
+    g.addColorStop(0.5, `rgba(${cr},${cg},${cb},${alpha * 0.65})`);
+    g.addColorStop(1, `rgba(${cr},${cg},${cb},0)`);
+    ctx.fillStyle = g;
+    ctx.fill();
+    ctx.restore();
+
+    // Rim highlights on some blobs
+    if (rng() > 0.55) {
+      ctx.save();
+      ctx.translate(cx2, cy2);
+      ctx.rotate(rotation);
+      const rg = ctx.createRadialGradient(0, -ry * 0.3, 0, 0, 0, Math.max(rx, ry) * 1.1);
+      rg.addColorStop(0, `rgba(${Math.min(cr+80,255)},${Math.min(cg+80,255)},${Math.min(cb+80,255)},0.2)`);
+      rg.addColorStop(0.4, `rgba(${Math.min(cr+40,255)},${Math.min(cg+40,255)},${Math.min(cb+40,255)},0.1)`);
+      rg.addColorStop(1, `rgba(${cr},${cg},${cb},0)`);
+      ctx.fillStyle = rg;
+      ctx.beginPath(); ctx.ellipse(0, 0, rx * 1.1, ry * 1.1, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+}
+
+// ── SHARP: Crystalline shards / dragon scale facets / broken glass ──
+function patternSharp(ctx, W, H, rng, mod, color) {
+  const [cr, cg, cb] = hexToRgb(color);
+  const count = 12 + mod * 3 + Math.floor(rng() * 10);
+
+  for (let i = 0; i < count; i++) {
+    const cx2 = rng() * W;
+    const cy2 = rng() * H;
+    const size = 20 + rng() * (55 + mod * 8);
+    const sides = 3 + Math.floor(rng() * 3); // triangles to pentagons
+    const elongation = 0.3 + rng() * 1.4; // how spiky
+    const rot = rng() * Math.PI * 2;
+    const alpha = 0.3 + rng() * 0.45;
+
+    ctx.beginPath();
+    for (let j = 0; j < sides; j++) {
+      const a = rot + (j / sides) * Math.PI * 2;
+      // alternate long and short radii for spiky effect
+      const r2 = j % 2 === 0 ? size * elongation : size * (0.3 + rng() * 0.4);
+      const px = cx2 + Math.cos(a) * r2;
+      const py = cy2 + Math.sin(a) * r2;
+      j === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+
+    // Faceted gradient — lit from upper-left
+    const litX = cx2 - size * 0.4;
+    const litY = cy2 - size * 0.4;
+    const fg = ctx.createRadialGradient(litX, litY, 0, cx2, cy2, size * elongation);
+    fg.addColorStop(0, `rgba(${Math.min(cr+70,255)},${Math.min(cg+70,255)},${Math.min(cb+70,255)},${alpha * 0.9})`);
+    fg.addColorStop(0.5, `rgba(${cr},${cg},${cb},${alpha})`);
+    fg.addColorStop(1, `rgba(${Math.max(cr-40,0)},${Math.max(cg-40,0)},${Math.max(cb-40,0)},${alpha * 0.5})`);
+    ctx.fillStyle = fg;
+    ctx.fill();
+
+    // Bright edge on one side
+    if (rng() > 0.5) {
+      ctx.strokeStyle = `rgba(${Math.min(cr+100,255)},${Math.min(cg+100,255)},${Math.min(cb+100,255)},0.3)`;
+      ctx.lineWidth = 0.5 + rng() * 1.5;
+      ctx.stroke();
+    }
+  }
+}
+
+// ── TWISTING: Sinuous river-delta tendrils, branching organically ──
+function patternTwisting(ctx, W, H, rng, mod, color) {
+  const [cr, cg, cb] = hexToRgb(color);
+  const rootCount = 3 + Math.floor(mod / 2) + Math.floor(rng() * 3);
+
+  function branch(x, y, angle, length, width, depth) {
+    if (depth <= 0 || length < 2) return;
+    const alpha = 0.35 + (depth / 6) * 0.35;
+    const segments = 8 + Math.floor(rng() * 6);
+    let cx2 = x, cy2 = y, curAngle = angle;
+
+    ctx.strokeStyle = `rgba(${cr},${cg},${cb},${alpha})`;
+    ctx.lineWidth = width;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    for (let i = 0; i < segments; i++) {
+      const newX = cx2 + Math.cos(curAngle) * (length / segments);
+      const newY = cy2 + Math.sin(curAngle) * (length / segments);
+      // Noisy stroke segment
+      noisyStroke(ctx, cx2, cy2, newX, newY, rng, width * 0.8);
+      curAngle += (rng() - 0.5) * 0.7;
+      cx2 = newX; cy2 = newY;
+    }
+
+    // Branch off
+    if (depth > 1 && rng() > 0.35) {
+      const branchAngle1 = curAngle + (0.3 + rng() * 0.6);
+      const branchAngle2 = curAngle - (0.3 + rng() * 0.6);
+      branch(cx2, cy2, branchAngle1, length * (0.55 + rng() * 0.25), width * 0.65, depth - 1);
+      if (rng() > 0.45) {
+        branch(cx2, cy2, branchAngle2, length * (0.45 + rng() * 0.3), width * 0.55, depth - 1);
+      }
+    }
+  }
+
+  for (let i = 0; i < rootCount; i++) {
+    const startX = rng() > 0.5 ? rng() * W : (rng() > 0.5 ? 0 : W);
+    const startY = rng() * H;
+    const startAngle = rng() * Math.PI * 2;
+    const initLen = H * (0.25 + rng() * 0.4);
+    const initWidth = 6 + rng() * (8 + mod * 2);
+    branch(startX, startY, startAngle, initLen, initWidth, 4 + Math.floor(mod / 2));
+  }
+}
+
+// ── WAVES: Layered ocean swells with whitecaps and depth variation ──
+function patternWaves(ctx, W, H, rng, mod, color) {
+  const [cr, cg, cb] = hexToRgb(color);
+  const layerCount = 5 + Math.floor(mod / 2) + Math.floor(rng() * 4);
+
+  for (let layer = 0; layer < layerCount; layer++) {
+    const t = layer / layerCount;
+    const yBase = H * (0.05 + t * 0.9 + (rng() - 0.5) * 0.1);
+    const amplitude = 12 + rng() * (30 + mod * 4);
+    const frequency = (1.5 + rng() * 3.5) * Math.PI * 2 / W;
+    const phase = rng() * Math.PI * 2;
+    const phase2 = rng() * Math.PI * 2; // secondary wave
+    const alpha = 0.25 + rng() * 0.45;
+    const strokeW = 2 + rng() * (6 + mod);
+
+    // Draw filled wave band
+    ctx.beginPath();
+    ctx.moveTo(0, yBase + Math.sin(phase) * amplitude);
+    for (let x = 0; x <= W; x += 3) {
+      // Combine two frequencies for more organic look
+      const y = yBase
+        + Math.sin(x * frequency + phase) * amplitude
+        + Math.sin(x * frequency * 1.618 + phase2) * amplitude * 0.38;
+      ctx.lineTo(x, y);
+    }
+    ctx.lineTo(W, H * 1.2);
+    ctx.lineTo(0, H * 1.2);
+    ctx.closePath();
+    ctx.fillStyle = `rgba(${cr},${cg},${cb},${alpha * 0.35})`;
+    ctx.fill();
+
+    // Crest stroke
+    ctx.beginPath();
+    ctx.moveTo(0, yBase + Math.sin(phase) * amplitude);
+    for (let x = 0; x <= W; x += 2) {
+      const y = yBase
+        + Math.sin(x * frequency + phase) * amplitude
+        + Math.sin(x * frequency * 1.618 + phase2) * amplitude * 0.38;
+      ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = `rgba(${cr},${cg},${cb},${alpha})`;
+    ctx.lineWidth = strokeW;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
+    // Whitecap sparkles on top of wave crests
+    if (rng() > 0.4) {
+      const capCount = 2 + Math.floor(rng() * 4);
+      for (let k = 0; k < capCount; k++) {
+        const kx = (0.1 + rng() * 0.8) * W;
+        const ky = yBase
+          + Math.sin(kx * frequency + phase) * amplitude
+          + Math.sin(kx * frequency * 1.618 + phase2) * amplitude * 0.38;
+        const capLen = 8 + rng() * 20;
+        ctx.strokeStyle = `rgba(${Math.min(cr+80,255)},${Math.min(cg+80,255)},${Math.min(cb+80,255)},0.5)`;
+        ctx.lineWidth = 1 + rng() * 2;
+        ctx.beginPath();
+        ctx.moveTo(kx - capLen * 0.4, ky - 2);
+        ctx.lineTo(kx + capLen * 0.6, ky - 2);
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+// ── SOFTBLUR: Nebula / watercolor wash / aurora borealis ──
+function patternSoftBlur(ctx, W, H, rng, mod, color) {
+  const [cr, cg, cb] = hexToRgb(color);
+  const count = 7 + Math.floor(mod / 2) + Math.floor(rng() * 5);
+
+  for (let i = 0; i < count; i++) {
+    const cx2 = (rng() * 1.4 - 0.2) * W;
+    const cy2 = (rng() * 1.4 - 0.2) * H;
+    const outerR = 50 + rng() * (130 + mod * 15);
+    const innerR = outerR * (0.05 + rng() * 0.3);
+    const alpha = 0.2 + rng() * 0.4;
+
+    // Slightly shifted inner point for directionality
+    const offsetX = (rng() - 0.5) * outerR * 0.4;
+    const offsetY = (rng() - 0.5) * outerR * 0.4;
+    const g = ctx.createRadialGradient(
+      cx2 + offsetX, cy2 + offsetY, innerR,
+      cx2, cy2, outerR
+    );
+    g.addColorStop(0, `rgba(${cr},${cg},${cb},${alpha})`);
+    g.addColorStop(0.35, `rgba(${cr},${cg},${cb},${alpha * 0.55})`);
+    g.addColorStop(0.7, `rgba(${cr},${cg},${cb},${alpha * 0.18})`);
+    g.addColorStop(1, `rgba(${cr},${cg},${cb},0)`);
+    ctx.fillStyle = g;
+    ctx.beginPath();
+
+    // Irregular oval rather than perfect circle
+    ctx.save();
+    ctx.translate(cx2, cy2);
+    ctx.rotate(rng() * Math.PI);
+    ctx.scale(1, 0.4 + rng() * 0.9);
+    ctx.arc(0, 0, outerR, 0, Math.PI * 2);
+    ctx.restore();
+    ctx.fill();
+  }
+
+  // Aurora streaks on top
+  const streakCount = 2 + Math.floor(rng() * 3);
+  for (let i = 0; i < streakCount; i++) {
+    const y0 = rng() * H;
+    const y1 = y0 + (rng() - 0.5) * H * 0.3;
+    const alpha2 = 0.12 + rng() * 0.2;
+    const sg = ctx.createLinearGradient(0, y0, W, y1);
+    sg.addColorStop(0, `rgba(${cr},${cg},${cb},0)`);
+    sg.addColorStop(0.2, `rgba(${cr},${cg},${cb},${alpha2})`);
+    sg.addColorStop(0.5, `rgba(${Math.min(cr+50,255)},${Math.min(cg+50,255)},${Math.min(cb+50,255)},${alpha2 * 1.3})`);
+    sg.addColorStop(0.8, `rgba(${cr},${cg},${cb},${alpha2})`);
+    sg.addColorStop(1, `rgba(${cr},${cg},${cb},0)`);
+    const bandH = 20 + rng() * 60;
+    ctx.fillStyle = sg;
+    ctx.fillRect(0, Math.min(y0, y1) - bandH / 2, W, bandH + Math.abs(y1 - y0));
+  }
+}
+
+const PATTERN_FNS = {
+  stripes:  patternStripes,
+  dots:     patternDots,
+  blobs:    patternBlobs,
+  sharp:    patternSharp,
+  twisting: patternTwisting,
+  waves:    patternWaves,
+  softblur: patternSoftBlur,
+};
 
 // ══════════════════════════════════════════════════════════════
 //  HELPERS
@@ -379,14 +742,24 @@ function showError(msg){document.getElementById('loading-msg').style.display='no
 const raw = getCookie('quiz_dragon_person_01_answers');
 if (!raw) { window.location.href='index.html'; }
 
-const answers    = JSON.parse(raw);
-const dragonKey  = answers.dragon;
-const colorHex   = answers.colorHex;
-const colorKey   = answers.color   || 'gold';
-const eyeStyle   = answers.eyeStyle || 'rainbow_swirl';
-const patternType = answers.patternType || 'blobs';
-const seedMod    = typeof answers.seedMod === 'number' ? answers.seedMod : 0;
+const answers      = JSON.parse(raw);
+const dragonKey    = answers.dragon;
+const colorHex     = answers.colorHex;
+const colorKey     = answers.color   || 'gold';
+const eyeStyle     = answers.eyeStyle || 'rainbow_swirl';
+const patternType  = answers.patternType || 'blobs';
+const seedMod      = typeof answers.seedMod === 'number' ? answers.seedMod : 0;
 const descriptions = Array.isArray(answers.descriptions) ? answers.descriptions : [];
+
+// Pattern color: from q6 if available, otherwise derive a contrasting color
+const patternColorHex = answers.patternColorHex || (() => {
+  // Fallback: shift the base color hue by ~120° for contrast
+  const [r, g, b] = hexToRgb(colorHex || '#c9a84c');
+  const [h, s, v] = rgbToHsv(r, g, b);
+  const newH = (h + 0.33) % 1.0;
+  const [nr, ng, nb] = hsvToRgb(newH, Math.min(s * 1.2, 1.0), Math.min(v * 1.1, 1.0));
+  return '#' + [nr, ng, nb].map(x => x.toString(16).padStart(2, '0')).join('');
+})();
 
 const info = DRAGON_INFO[dragonKey] || { name: dragonKey, subtitle: 'Of Ancient Lineage' };
 
@@ -397,7 +770,6 @@ document.getElementById('dragon-frame').style.setProperty(
   '--glow', COLOR_GLOW[colorKey] || 'rgba(201,168,76,0.18)'
 );
 
-// Descriptions
 const descEl = document.getElementById('descriptions');
 descriptions.forEach(line => {
   const d = document.createElement('div');
@@ -414,7 +786,7 @@ const patternSeed = (strHash(dragonKey) ^ strHash(colorKey)  ^ (seedMod * 0x9e37
 // ── Load images ───────────────────────────────────────────────
 const clippingPath = `base/clipping/${dragonKey}.png`;
 const linesPath    = `base/lines/${dragonKey}.png`;
-const eyePath      = `base/extra/EYEBALL.png`;
+const eyePath      = `base/extras/EYEBALL.png`;
 
 const canvas = document.getElementById('output-canvas');
 const ctx    = canvas.getContext('2d');
@@ -435,49 +807,32 @@ Promise.all([
   flatRecolor(baseData, colorHex);
   ctxBase.putImageData(baseData, 0, 0);
 
-  // ── B: Body pattern — black, masked to clipping shape ─────
+  // ── B: Body pattern — colored, masked to clipping shape ───
   const offPat = makeOff(W,H), ctxPat = offPat.getContext('2d');
   const patRng = mulberry32(patternSeed);
-  (PATTERN_FNS[patternType] || patternBlobs)(ctxPat, W, H, patRng, seedMod);
-  ctxPat.globalCompositeOperation='destination-in';
+  (PATTERN_FNS[patternType] || patternBlobs)(ctxPat, W, H, patRng, seedMod, patternColorHex);
+  ctxPat.globalCompositeOperation = 'destination-in';
   ctxPat.drawImage(clippingImg, 0, 0);
-  ctxPat.globalCompositeOperation='source-over';
+  ctxPat.globalCompositeOperation = 'source-over';
 
   // ── C: Composite base + pattern → "beneath" canvas ───────
-  //    Eye is added AFTER this, so it sits on top of pattern.
-  //    Lineart samples from beneath+eye combined (see step E).
   const offBeneath = makeOff(W,H), ctxBeneath = offBeneath.getContext('2d');
   ctxBeneath.drawImage(offBase, 0, 0);
   ctxBeneath.drawImage(offPat,  0, 0);
 
   // ── D: Eye layer — LAST thing before lineart ──────────────
-  //    Pipeline:
-  //      1. Draw eye art onto an offscreen sized to EYEBALL.png
-  //      2. Mask that art using EYEBALL.png's own alpha channel
-  //         via destination-in (only eye-shaped pixels survive)
-  //      3. Composite the masked eye onto offBeneath
   if (eyeImg) {
     const EW = eyeImg.naturalWidth, EH = eyeImg.naturalHeight;
-
-    // Step 1: draw eye art at EYEBALL dimensions
     const offEyeArt = makeOff(EW, EH);
     const ctxEyeArt = offEyeArt.getContext('2d');
     drawEyeLayer(ctxEyeArt, EW, EH, eyeStyle, mulberry32(eyeSeed));
-
-    // Step 2: mask to EYEBALL.png alpha (destination-in keeps only
-    //         pixels where the mask is opaque)
     ctxEyeArt.globalCompositeOperation = 'destination-in';
     ctxEyeArt.drawImage(eyeImg, 0, 0);
     ctxEyeArt.globalCompositeOperation = 'source-over';
-
-    // Step 3: place masked eye onto the beneath canvas
-    // EYEBALL.png is assumed to be positioned at the canvas origin
-    // matching the dragon art. Adjust ex/ey here if it needs offsetting.
     const ex = 0, ey = 0;
     ctxBeneath.drawImage(offEyeArt, ex, ey);
   }
 
-  // Snapshot what lineart will sample from
   const beneathData = ctxBeneath.getImageData(0,0,W,H);
 
   // ── E: Lineart — recolored by sampling beneathData ────────
@@ -489,9 +844,9 @@ Promise.all([
 
   // ── FINAL: draw all layers onto output canvas ─────────────
   ctx.clearRect(0,0,W,H);
-  ctx.drawImage(offBeneath, 0, 0);           // base + pattern + eye
+  ctx.drawImage(offBeneath, 0, 0);
   ctx.globalAlpha = 0.82;
-  ctx.drawImage(offLine, 0, 0);              // darkened lineart on top
+  ctx.drawImage(offLine, 0, 0);
   ctx.globalAlpha = 1.0;
 
   document.getElementById('loading-msg').style.display='none';

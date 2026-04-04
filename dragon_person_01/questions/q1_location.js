@@ -10,26 +10,26 @@
 
 export const meta = {
   id:     'location',
-  prompt: 'Where would you most want to live?',
+  prompt: 'You are given one free afternoon with nowhere to be. Where do you end up?',
 };
 
 const OPTIONS = [
-  { file: 'skywing',   emoji: '🏔️',  label: 'Mountain Peak',              sub: 'Wind-scraped stone, thin cold air',           description: 'You are a dragon of the high peaks, where the air is thin and the view is endless.' },
-  { file: 'icewing',   emoji: '🧊',  label: 'Arctic Tundra',               sub: 'Silence and permafrost and pale sky',          description: 'You are a creature of ice and silence, most alive where others would freeze.' },
-  { file: 'seawing',   emoji: '🌊',  label: 'Open Ocean',                  sub: 'Horizon in every direction',                   description: 'You belong to the open ocean, where the horizon is everything and the depths are yours.' },
-  { file: 'seawingb',  emoji: '🦀',  label: 'Coastal Tide Pools',          sub: 'The place where sea meets stone',              description: 'You haunt the liminal edges, where the sea meets stone and strange things cling to rocks.' },
-  { file: 'rainwing',  emoji: '☁️',  label: 'Cloud Canopy',                sub: 'Above the trees, below the stars',             description: 'You drift above it all, in the soft country between the treetops and the stars.' },
-  { file: 'leafwing',  emoji: '🌿',  label: 'Ancient Rainforest',          sub: 'Dark, wet, alive with sound',                  description: 'You are woven into the ancient forest, dark and wet and loud with life.' },
-  { file: 'mudwing',   emoji: '🌾',  label: 'River Delta',                 sub: 'Slow water, reed beds, damp earth',            description: 'You are at home in the slow delta, where the river gives itself to the sea.' },
-  { file: 'sandwing',  emoji: '🏜️',  label: 'Desert Wastes',               sub: 'Heat shimmer and endless dunes',               description: 'You were made for the desert — patient, warm, and harder than you look.' },
-  { file: 'hivewing',  emoji: '🏙️',  label: 'Neon City',                   sub: 'Towers of glass and humming cables',           description: 'You thrive in the city\'s hum, among towers of glass and ten thousand strangers.' },
-  { file: 'nightwing', emoji: '🌃',  label: 'City at 3am',                 sub: 'Empty streets, orange lamplight',              description: 'You belong to the city after midnight, when the streets are yours and everything feels possible.' },
-  { file: 'silkwing',  emoji: '🌸',  label: 'Botanical Garden',            sub: 'Humid glass house, ordered wildness',          description: 'You flourish in curated wildness — beauty that has been tended and chosen.' },
-  { file: 'b',         emoji: '🅿️',  label: 'A Parking Lot',               sub: 'Fluorescent lights. Faded lines.',             description: 'You call a parking lot home. It is what it is. The fluorescent lights have a certain honesty.' },
-  { file: 'base',      emoji: '🏘️',  label: 'The Suburbs',                 sub: 'Sprinklers at 6am. Someone mowing.',           description: 'You are a suburban dragon. You know your neighbors\' schedules. You have opinions about lawn care.' },
-  { file: 'beta',      emoji: '🦷',  label: "Dentist's Waiting Room",      sub: 'Old magazines. Soft jazz.',                    description: 'You dwell in liminal waiting. Something will happen soon. Probably.' },
-  { file: 'betab',     emoji: '⛽',  label: 'Highway Rest Stop',           sub: 'Vending machine hum. Broken soap dispenser.',  description: 'You are a dragon of the in-between — always somewhere between where you were and where you\'re going.' },
-  { file: 'c',         emoji: '📊',  label: 'Conference Room B',           sub: 'Wrong aspect ratio. Lukewarm coffee.',         description: 'Conference Room B is your domain. The projector is your hoard. Nobody truly understands you.' },
+  { file: 'skywing',   emoji: '🏔️',  label: 'Climbing something unnecessarily tall', sub: 'The view from the top is not the point. The climb is.',        description: 'You are a dragon of the high peaks, where the air is thin and the view is endless.' },
+  { file: 'icewing',   emoji: '🧊',  label: 'Walking alone until you can\'t hear anything', sub: 'The silence is the destination.',                          description: 'You are a creature of ice and silence, most alive where others would freeze.' },
+  { file: 'seawing',   emoji: '🌊',  label: 'Floating somewhere with no bottom in sight', sub: 'Depth is comforting, actually.',                            description: 'You belong to the open ocean, where the horizon is everything and the depths are yours.' },
+  { file: 'seawingb',  emoji: '🦀',  label: 'Picking through rocks at low tide',         sub: 'There is always something strange if you look closely enough.',  description: 'You haunt the liminal edges, where the sea meets stone and strange things cling to rocks.' },
+  { file: 'rainwing',  emoji: '☁️',  label: 'Lying on something high and watching clouds', sub: 'Not thinking. Just watching.',                              description: 'You drift above it all, in the soft country between the treetops and the stars.' },
+  { file: 'leafwing',  emoji: '🌿',  label: 'Deep in a forest with bad cell service',    sub: 'The further in, the better.',                                 description: 'You are woven into the ancient forest, dark and wet and loud with life.' },
+  { file: 'mudwing',   emoji: '🌾',  label: 'Sitting beside moving water, doing nothing', sub: 'Watching it go is the whole activity.',                      description: 'You are at home in the slow delta, where the river gives itself to the sea.' },
+  { file: 'sandwing',  emoji: '🏜️',  label: 'Somewhere so hot everyone else has left',   sub: 'You like it when it thins out.',                              description: 'You were made for the desert — patient, warm, and harder than you look.' },
+  { file: 'hivewing',  emoji: '🏙️',  label: 'In the loudest part of a city you don\'t know', sub: 'Strangers are interesting. You like the density.',        description: 'You thrive in the city\'s hum, among towers of glass and ten thousand strangers.' },
+  { file: 'nightwing', emoji: '🌃',  label: 'Wandering alone after midnight',            sub: 'Cities are different when nobody\'s performing.',              description: 'You belong to the city after midnight, when the streets are yours and everything feels possible.' },
+  { file: 'silkwing',  emoji: '🌸',  label: 'Somewhere meticulously beautiful',          sub: 'You like beauty that has been chosen and arranged.',           description: 'You flourish in curated wildness — beauty that has been tended and chosen.' },
+  { file: 'b',         emoji: '🅿️',  label: 'Sitting in a parking lot for unclear reasons', sub: 'It is what it is. The lights are consistent.',             description: 'You call a parking lot home. It is what it is. The fluorescent lights have a certain honesty.' },
+  { file: 'base',      emoji: '🏘️',  label: 'Home. Genuinely, completely, just home.',   sub: 'You like knowing your neighbors. You have opinions about bins.', description: 'You are a suburban dragon. You know your neighbors\' schedules. You have opinions about lawn care.' },
+  { file: 'beta',      emoji: '🦷',  label: 'A waiting room. Inexplicably content.',     sub: 'Something will happen soon. You are fine with that.',          description: 'You dwell in liminal waiting. Something will happen soon. Probably.' },
+  { file: 'betab',     emoji: '⛽',  label: 'A highway rest stop, three hours from anywhere', sub: 'Between places. That counts as a place.',                 description: 'You are a dragon of the in-between — always somewhere between where you were and where you\'re going.' },
+  { file: 'c',         emoji: '📊',  label: 'In a conference room, alone, with the projector on', sub: 'The hum is calming. The coffee is wrong but fine.',   description: 'Conference Room B is your domain. The projector is your hoard. Nobody truly understands you.' },
 ];
 
 export function render(container, onAnswer) {

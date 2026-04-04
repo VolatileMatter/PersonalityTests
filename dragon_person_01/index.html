@@ -6,7 +6,6 @@
   <title>What Dragon Are You?</title>
   <link rel="stylesheet" href="../shared.css">
   <style>
-    /* ── Reveal screen ───────────────────────────────────── */
     #screen-reveal {
       min-height: 60vh;
       display: none;
@@ -44,10 +43,8 @@
   <a href="../index.html" class="back-link">← The Hoard</a>
   <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
 
-  <!-- Question screens injected here by JS -->
   <div id="question-host"></div>
 
-  <!-- Reveal gate (always last) -->
   <div id="screen-reveal">
     <div class="reveal-glyph">🐉</div>
     <div class="reveal-title">Your dragon awaits.</div>
@@ -61,18 +58,15 @@
 </div>
 
 <script type="module">
-// ── To add a new question: just append its path to this array ──
 const QUESTION_MODULES = [
   './questions/q1_location.js',
   './questions/q2_color.js',
   './questions/q3_eye.js',
   './questions/q4_activity.js',
   './questions/q5_personality.js',
+  './questions/q6_pattern_color.js',
 ];
 
-// ══════════════════════════════════════════════════════════
-//  COOKIES
-// ══════════════════════════════════════════════════════════
 function setCookie(name, val, days = 365) {
   const d = new Date();
   d.setTime(d.getTime() + days * 86400000);
@@ -82,50 +76,38 @@ function deleteCookie(name) {
   document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/`;
 }
 
-// ══════════════════════════════════════════════════════════
-//  ORCHESTRATOR
-// ══════════════════════════════════════════════════════════
-const host    = document.getElementById('question-host');
-const reveal  = document.getElementById('screen-reveal');
+const host     = document.getElementById('question-host');
+const reveal   = document.getElementById('screen-reveal');
 const progress = document.getElementById('progress');
 
-// Accumulated answers — each question merges its payload in
 const answers = { descriptions: [] };
-
-// Total steps = questions + reveal screen
-const TOTAL = QUESTION_MODULES.length + 1;
+const TOTAL   = QUESTION_MODULES.length + 1;
 
 function setProgress(step) {
   progress.style.width = (step / (TOTAL - 1) * 100) + '%';
 }
 
-// Load all modules up front, then drive sequentially
 const modules = await Promise.all(QUESTION_MODULES.map(p => import(p)));
 
 let currentStep = 0;
 
 function showStep(index) {
-  // Clear host
   host.innerHTML = '';
   currentStep = index;
   setProgress(index);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
   if (index >= modules.length) {
-    // Show reveal screen
     reveal.classList.add('active');
     return;
   }
 
   reveal.classList.remove('active');
 
-  const mod = modules[index];
-
-  // Build screen wrapper
+  const mod    = modules[index];
   const screen = document.createElement('div');
   screen.className = 'screen active';
 
-  // Question header
   const qNum = document.createElement('div');
   qNum.className = 'q-number';
   qNum.textContent = `${index + 1} / ${modules.length}`;
@@ -137,24 +119,18 @@ function showStep(index) {
   screen.appendChild(qNum);
   screen.appendChild(qText);
 
-  // Let the module render its own UI
   mod.render(screen, (payload) => {
-    // Merge payload into answers; accumulate description separately
     const { description, ...rest } = payload;
     Object.assign(answers, rest);
     if (description) answers.descriptions.push(description);
-
-    // Advance to next step
     showStep(index + 1);
   });
 
   host.appendChild(screen);
 }
 
-// Kick off
 showStep(0);
 
-// ── Reveal ────────────────────────────────────────────────
 document.getElementById('reveal-btn').addEventListener('click', () => {
   setCookie('quiz_dragon_person_01_answers', JSON.stringify(answers));
   setCookie('quiz_dragon_person_01_done', 'true');

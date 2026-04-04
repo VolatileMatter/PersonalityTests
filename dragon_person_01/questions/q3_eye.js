@@ -2,56 +2,56 @@
 
 export const meta = {
   id:     'eye',
-  prompt: 'Which of these describes you best?',
+  prompt: 'What do people get wrong about you the first time?',
 };
 
 const OPTIONS = [
   {
     value: 'passionate',   style: 'pink_purple_swirl',
-    label: 'Passionate about silly things',
-    sub:   'You will die on this hill. It is a very small hill.',
+    label: 'That you\'re joking',
+    sub:   'You are not joking. You are extremely serious about this.',
     description: 'Your eyes swirl pink and purple — burning bright for things others find ridiculous, and completely unapologetic about it.',
   },
   {
     value: 'loyal',        style: 'gold_white_swirl',
-    label: 'Loyal to a fault',
-    sub:   "You have forgiven things you probably shouldn't have.",
+    label: 'That you\'ll leave',
+    sub:   'You are, if anything, the problem of staying too long.',
     description: 'Gold and white spiral through your eyes — the mark of someone who stays, sometimes past the point of wisdom.',
   },
   {
     value: 'brave',        style: 'green_gold_split',
-    label: 'Brave',
-    sub:   'Not fearless. You just go anyway.',
+    label: 'That you\'re confident',
+    sub:   'You are terrified. You just go anyway.',
     description: 'Your eyes are split green and gold — the colors of a dragon who is afraid and does it anyway.',
   },
   {
     value: 'quiet_lover',  style: 'purple_blue_blob',
-    label: 'Quiet, but love passionately',
-    sub:   'Depth over volume, always.',
+    label: 'That you\'re indifferent',
+    sub:   'You are the opposite of indifferent. You just do not perform it.',
     description: 'Deep purple and blue bloom in your eyes — still on the surface, and fathomless underneath.',
   },
   {
     value: 'silly',        style: 'rainbow_swirl',
-    label: 'Silly',
-    sub:   'Deeply, committedly, magnificently silly.',
+    label: 'That you\'re not serious',
+    sub:   'You can be both. This is not a contradiction.',
     description: 'Your eyes hold every color at once — a dragon who refuses to pick just one tone and stick to it.',
   },
   {
     value: 'wizard',       style: 'cyan_blue_space',
-    label: 'Problem-solving wizard',
-    sub:   'You see the solution before anyone else sees the problem.',
+    label: 'That you\'re not paying attention',
+    sub:   'You are paying so much attention it would unsettle them to know.',
     description: 'Cyan and deep blue with gold sparks — eyes that are always running three steps ahead of the conversation.',
   },
   {
     value: 'misunderstood', style: 'black_purple_stripes',
-    label: 'Misunderstood artist',
-    sub:   "They just don't get it yet.",
+    label: 'That you\'re simple',
+    sub:   'There are several more layers. You have stopped explaining them.',
     description: 'Black streaked with deep purple — your eyes hold entire worlds that you have given up trying to explain.',
   },
   {
     value: 'understood',   style: 'pink_purple_hearts',
-    label: 'Perfectly understood artist',
-    sub:   "They get it. You're just that good.",
+    label: 'Nothing, actually',
+    sub:   'People tend to get you right. It is refreshing and slightly suspicious.',
     description: 'Soft pink and purple hearts — your eyes are exactly as open as they look, and people love you for it.',
   },
 ];
@@ -141,7 +141,6 @@ function drawEyePreview(canvas, style) {
         bg.addColorStop(0,c+'bb'); bg.addColorStop(1,'transparent');
         ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
       });
-      // sparkles (fixed positions for thumbnail)
       ctx.fillStyle='#ffd700';
       [[W*0.2,H*0.3],[W*0.7,H*0.2],[W*0.5,H*0.7],[W*0.8,H*0.6],[W*0.3,H*0.8]].forEach(([sx,sy])=>{
         ctx.beginPath(); ctx.arc(sx,sy,0.8,0,Math.PI*2); ctx.fill();
@@ -175,7 +174,6 @@ function drawEyePreview(canvas, style) {
     }
   }
   ctx.restore();
-  // iris ring + pupil
   ctx.beginPath(); ctx.arc(cx,cy,r*0.35,0,Math.PI*2);
   ctx.strokeStyle='rgba(0,0,0,0.6)'; ctx.lineWidth=1.5; ctx.stroke();
   ctx.beginPath(); ctx.arc(cx,cy,r*0.18,0,Math.PI*2);

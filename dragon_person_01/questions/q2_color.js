@@ -2,21 +2,21 @@
 
 export const meta = {
   id:     'color',
-  prompt: 'What color calls to you from deep within the hoard?',
+  prompt: 'Someone describes you to a stranger. Which word do they reach for first?',
 };
 
 const OPTIONS = [
-  { value: 'crimson',  label: 'Crimson',  sub: 'Fierce & passionate', hex: '#cc2200', description: 'Your scales burn crimson — you are felt before you are seen.' },
-  { value: 'gold',     label: 'Gold',     sub: 'Ancient & radiant',   hex: '#c9a84c', description: 'You wear the color of old treasure — warm, unhurried, and worth finding.' },
-  { value: 'cobalt',   label: 'Cobalt',   sub: 'Deep & mysterious',   hex: '#1a4fa0', description: 'Cobalt runs through you — deep water, ink, the hour before dawn.' },
-  { value: 'emerald',  label: 'Emerald',  sub: 'Wild & verdant',      hex: '#1a7a45', description: 'You are the green of old growth — a color that takes centuries to earn.' },
-  { value: 'amethyst', label: 'Amethyst', sub: 'Arcane & dreaming',   hex: '#6b3fa0', description: 'You shimmer with amethyst — there is always something you know that you aren\'t saying.' },
-  { value: 'ivory',    label: 'Ivory',    sub: 'Pure & untamed',      hex: '#e8dcc8', description: 'Ivory and bone — clean as a fresh start, quiet as snow.' },
-  { value: 'copper',   label: 'Copper',   sub: 'Earthy & ancient',    hex: '#b87333', description: 'You carry copper\'s warmth — old, honest, and more valuable than people remember.' },
-  { value: 'rose',     label: 'Rose',     sub: 'Soft & deadly',       hex: '#c05080', description: 'Rose-scaled and deceptively soft — people forget that thorns come with flowers.' },
-  { value: 'teal',     label: 'Teal',     sub: 'Current & tide',      hex: '#2a9d8f', description: 'You are teal — the color of shallow tropical water, neither fully green nor fully blue.' },
-  { value: 'silver',   label: 'Silver',   sub: 'Cold & precise',      hex: '#9ab0c0', description: 'Silver-scaled: precise, reflective, and difficult to look at directly in strong light.' },
-  { value: 'ochre',    label: 'Ochre',    sub: 'Dusty & ancient',     hex: '#c8860a', description: 'Ochre is the oldest color humans ever painted with. You are that kind of ancient.' },
+  { value: 'crimson',  label: 'Intense',    sub: 'People feel it before they can explain it',   hex: '#cc2200', description: 'Your scales burn crimson — you are felt before you are seen.' },
+  { value: 'gold',     label: 'Warm',       sub: 'Not in a soft way. In a way that lasts.',      hex: '#c9a84c', description: 'You wear the color of old treasure — warm, unhurried, and worth finding.' },
+  { value: 'cobalt',   label: 'Deep',       sub: 'They mean it as a compliment. Mostly.',        hex: '#1a4fa0', description: 'Cobalt runs through you — deep water, ink, the hour before dawn.' },
+  { value: 'emerald',  label: 'Wild',       sub: 'Not reckless. Something older than that.',     hex: '#1a7a45', description: 'You are the green of old growth — a color that takes centuries to earn.' },
+  { value: 'amethyst', label: 'Strange',    sub: 'They say it with admiration, if you\'re lucky.', hex: '#6b3fa0', description: 'You shimmer with amethyst — there is always something you know that you aren\'t saying.' },
+  { value: 'ivory',    label: 'Quiet',      sub: 'Doesn\'t mean calm. Means deliberate.',        hex: '#e8dcc8', description: 'Ivory and bone — clean as a fresh start, quiet as snow.' },
+  { value: 'copper',   label: 'Honest',     sub: 'Worn down to the true thing.',                 hex: '#b87333', description: 'You carry copper\'s warmth — old, honest, and more valuable than people remember.' },
+  { value: 'rose',     label: 'Gentle',     sub: 'They underestimate you. You allow it.',        hex: '#c05080', description: 'Rose-scaled and deceptively soft — people forget that thorns come with flowers.' },
+  { value: 'teal',     label: 'Difficult to place', sub: 'Neither one thing nor the other. Both.',  hex: '#2a9d8f', description: 'You are teal — the color of shallow tropical water, neither fully green nor fully blue.' },
+  { value: 'silver',   label: 'Precise',    sub: 'Somewhat uncomfortable to look at directly.',  hex: '#9ab0c0', description: 'Silver-scaled: precise, reflective, and difficult to look at directly in strong light.' },
+  { value: 'ochre',    label: 'Ancient',    sub: 'Something about you predates the conversation.', hex: '#c8860a', description: 'Ochre is the oldest color humans ever painted with. You are that kind of ancient.' },
 ];
 
 export function render(container, onAnswer) {
